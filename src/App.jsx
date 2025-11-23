@@ -271,7 +271,7 @@ const MathClassScheduler = () => {
               toggleSlotAvailability(day, time);
             }
           }}
-          className={`p-1.5 border rounded transition-all flex flex-col items-center justify-center h-10 text-xs ${getSlotColor(slot.status)}`}
+          className={`w-full p-1.5 border rounded transition-all flex flex-col items-center justify-center h-10 text-xs ${getSlotColor(slot.status)}`}
         >
           {getSlotIcon(slot.status)}
         </button>
@@ -282,7 +282,7 @@ const MathClassScheduler = () => {
         return (
           <button
             onClick={() => handleBookSlot(day, time)}
-            className={`p-1.5 border rounded transition-all flex items-center justify-center h-10 ${getSlotColor(slot.status, selected)} font-semibold text-xs`}
+            className={`w-full p-1.5 border rounded transition-all flex items-center justify-center h-10 ${getSlotColor(slot.status, selected)} font-semibold text-xs`}
           >
             {selected ? (
               <Check className="w-4 h-4 text-indigo-700" />
@@ -294,7 +294,7 @@ const MathClassScheduler = () => {
       } else {
         // Öğrenciler için blocked ve booked farklı görünsün
         return (
-          <div className={`p-1.5 border rounded flex items-center justify-center h-10 text-xs ${getSlotColor(slot.status)}`}>
+          <div className={`w-full p-1.5 border rounded flex items-center justify-center h-10 text-xs ${getSlotColor(slot.status)}`}>
             {slot.status === 'blocked' ? (
               <X className="w-4 h-4 text-gray-600" />
             ) : (
@@ -387,22 +387,22 @@ const MathClassScheduler = () => {
 
         <div className="bg-gray-800 rounded-lg shadow-lg p-3 overflow-x-auto border border-gray-700">
           <div className="min-w-max">
-            <div className="grid grid-cols-8 mb-0.5" style={{gap: '2px'}}>
-              <div className="font-semibold text-gray-300 p-1 text-xs">Saat</div>
+            <div className="grid grid-cols-8 mb-0.5" style={{gap: '3px'}}>
+              <div className="font-semibold text-gray-300 p-1 text-xs w-12">Saat</div>
               {weekdays.map(day => (
-                <div key={day} className="font-semibold text-gray-300 p-1 text-center text-xs">
+                <div key={day} className="font-semibold text-gray-300 p-1 text-center text-xs flex-1">
                   {day.substring(0, 3)}
                 </div>
               ))}
             </div>
 
             {timeSlots.map(time => (
-              <div key={time} className="grid grid-cols-8 mb-0.5" style={{gap: '2px'}}>
-                <div className="font-medium text-gray-400 p-1 flex items-center text-xs">
+              <div key={time} className="grid grid-cols-8 mb-0.5" style={{gap: '3px'}}>
+                <div className="font-medium text-gray-400 p-1 flex items-center text-xs w-12">
                   {time}
                 </div>
                 {weekdays.map(day => (
-                  <div key={`${day}-${time}`}>
+                  <div key={`${day}-${time}`} className="flex-1">
                     {renderSlot(day, time)}
                   </div>
                 ))}
