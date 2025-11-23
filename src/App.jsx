@@ -21,6 +21,12 @@ const MathClassScheduler = () => {
   const [studentEmail, setStudentEmail] = useState('');
   const [studentPhone, setStudentPhone] = useState('');
   const [lastBooking, setLastBooking] = useState(null);
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [passwordInput, setPasswordInput] = useState('');
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  // Öğretmen şifresi - Gerçek uygulamada bunu environment variable olarak saklamalısın
+  const TEACHER_PASSWORD = '776110';
 
   const [schedule, setSchedule] = useState(() => {
     const initial = {};
@@ -162,11 +168,11 @@ const MathClassScheduler = () => {
   const getSlotIcon = (status) => {
     switch(status) {
       case 'available':
-        return <Check className="w-3 h-3 text-green-600" />;
+        return <Check className="w-4 h-4 text-green-600" />;
       case 'blocked':
-        return <X className="w-3 h-3 text-gray-600" />;
+        return <X className="w-4 h-4 text-gray-600" />;
       case 'booked':
-        return <Calendar className="w-3 h-3 text-blue-600" />;
+        return <Calendar className="w-4 h-4 text-blue-600" />;
       default:
         return null;
     }
@@ -179,7 +185,7 @@ const MathClassScheduler = () => {
       return (
         <button
           onClick={() => slot.status === 'booked' ? viewStudentInfo(day, time) : toggleSlotAvailability(day, time)}
-          className={`p-1 border rounded transition-all flex flex-col items-center justify-center h-8 text-xs ${getSlotColor(slot.status)}`}
+          className={`p-1.5 border rounded transition-all flex flex-col items-center justify-center h-10 text-xs ${getSlotColor(slot.status)}`}
         >
           {getSlotIcon(slot.status)}
         </button>
@@ -190,22 +196,22 @@ const MathClassScheduler = () => {
         return (
           <button
             onClick={() => handleBookSlot(day, time)}
-            className={`p-1 border rounded transition-all flex items-center justify-center h-8 ${getSlotColor(slot.status, selected)} font-semibold text-xs`}
+            className={`p-1.5 border rounded transition-all flex items-center justify-center h-10 ${getSlotColor(slot.status, selected)} font-semibold text-xs`}
           >
             {selected ? (
-              <Check className="w-3 h-3 text-indigo-700" />
+              <Check className="w-4 h-4 text-indigo-700" />
             ) : (
-              <Check className="w-3 h-3 text-green-600" />
+              <Check className="w-4 h-4 text-green-600" />
             )}
           </button>
         );
       } else {
         return (
-          <div className={`p-1 border rounded flex items-center justify-center h-8 text-xs ${getSlotColor(slot.status)}`}>
+          <div className={`p-1.5 border rounded flex items-center justify-center h-10 text-xs ${getSlotColor(slot.status)}`}>
             {slot.status === 'blocked' ? (
-              <X className="w-3 h-3 text-gray-600" />
+              <X className="w-4 h-4 text-gray-600" />
             ) : (
-              <Calendar className="w-3 h-3 text-blue-600" />
+              <Calendar className="w-4 h-4 text-blue-600" />
             )}
           </div>
         );
@@ -279,7 +285,7 @@ const MathClassScheduler = () => {
 
         <div className="bg-gray-800 rounded-lg shadow-lg p-3 overflow-x-auto border border-gray-700">
           <div className="min-w-max">
-            <div className="grid grid-cols-8 gap-0.5 mb-0.5">
+            <div className="grid grid-cols-8 mb-0.5" style={{gap: '2px'}}>
               <div className="font-semibold text-gray-300 p-1 text-xs">Saat</div>
               {weekdays.map(day => (
                 <div key={day} className="font-semibold text-gray-300 p-1 text-center text-xs">
@@ -289,7 +295,7 @@ const MathClassScheduler = () => {
             </div>
 
             {timeSlots.map(time => (
-              <div key={time} className="grid grid-cols-8 gap-0.5 mb-0.5">
+              <div key={time} className="grid grid-cols-8 mb-0.5" style={{gap: '2px'}}>
                 <div className="font-medium text-gray-400 p-1 flex items-center text-xs">
                   {time}
                 </div>
