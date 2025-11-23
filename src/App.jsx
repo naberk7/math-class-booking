@@ -2,12 +2,12 @@ import React, { useState } from 'react';
 import { Calendar, Clock, X, Check, User } from 'lucide-react';
 
 const MathClassScheduler = () => {
-  const weekdays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+  const weekdays = ['Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi', 'Pazar'];
   const timeSlots = [
-    '8:00 AM', '9:00 AM', '10:00 AM', '11:00 AM', 
-    '12:00 PM', '1:00 PM', '2:00 PM', '3:00 PM', 
-    '4:00 PM', '5:00 PM', '6:00 PM', '7:00 PM', 
-    '8:00 PM', '9:00 PM', '10:00 PM'
+    '08:00', '09:00', '10:00', '11:00', 
+    '12:00', '13:00', '14:00', '15:00', 
+    '16:00', '17:00', '18:00', '19:00', 
+    '20:00', '21:00', '22:00'
   ];
 
   const [viewMode, setViewMode] = useState('admin');
@@ -127,8 +127,8 @@ const MathClassScheduler = () => {
   };
 
   const sendConfirmationEmail = (bookingData) => {
-    console.log('Sending confirmation email to:', bookingData.studentEmail);
-    console.log('Booking details:', bookingData);
+    console.log('Onay e-postası gönderiliyor:', bookingData.studentEmail);
+    console.log('Rezervasyon detayları:', bookingData);
   };
 
   const generateZoomMeeting = async (day, time, studentName) => {
@@ -162,11 +162,11 @@ const MathClassScheduler = () => {
   const getSlotIcon = (status) => {
     switch(status) {
       case 'available':
-        return <Check className="w-4 h-4 text-green-600" />;
+        return <Check className="w-3 h-3 text-green-600" />;
       case 'blocked':
-        return <X className="w-4 h-4 text-gray-600" />;
+        return <X className="w-3 h-3 text-gray-600" />;
       case 'booked':
-        return <Calendar className="w-4 h-4 text-blue-600" />;
+        return <Calendar className="w-3 h-3 text-blue-600" />;
       default:
         return null;
     }
@@ -179,14 +179,9 @@ const MathClassScheduler = () => {
       return (
         <button
           onClick={() => slot.status === 'booked' ? viewStudentInfo(day, time) : toggleSlotAvailability(day, time)}
-          className={`p-2 border-2 rounded transition-all flex flex-col items-center justify-center min-h-12 text-xs ${getSlotColor(slot.status)}`}
+          className={`p-1 border rounded transition-all flex flex-col items-center justify-center h-8 text-xs ${getSlotColor(slot.status)}`}
         >
           {getSlotIcon(slot.status)}
-          {slot.status === 'booked' && (
-            <span className="text-xs mt-0.5 text-blue-700 font-medium truncate w-full text-center">
-              {slot.studentName}
-            </span>
-          )}
         </button>
       );
     } else {
@@ -195,31 +190,22 @@ const MathClassScheduler = () => {
         return (
           <button
             onClick={() => handleBookSlot(day, time)}
-            className={`p-2 border-2 rounded transition-all flex flex-col items-center justify-center min-h-12 ${getSlotColor(slot.status, selected)} font-semibold text-xs`}
+            className={`p-1 border rounded transition-all flex items-center justify-center h-8 ${getSlotColor(slot.status, selected)} font-semibold text-xs`}
           >
             {selected ? (
-              <>
-                <Check className="w-4 h-4 text-indigo-700 mb-0.5" />
-                <span className="text-xs text-indigo-700">Selected</span>
-              </>
+              <Check className="w-3 h-3 text-indigo-700" />
             ) : (
-              <>
-                <Check className="w-4 h-4 text-green-600 mb-0.5" />
-                <span className="text-xs text-green-700">Available</span>
-              </>
+              <Check className="w-3 h-3 text-green-600" />
             )}
           </button>
         );
       } else {
         return (
-          <div className={`p-2 border-2 rounded flex flex-col items-center justify-center min-h-12 text-xs ${getSlotColor(slot.status)}`}>
+          <div className={`p-1 border rounded flex items-center justify-center h-8 text-xs ${getSlotColor(slot.status)}`}>
             {slot.status === 'blocked' ? (
-              <span className="text-xs text-gray-600">Unavailable</span>
+              <X className="w-3 h-3 text-gray-600" />
             ) : (
-              <>
-                <Calendar className="w-3 h-3 text-blue-600" />
-                <span className="text-xs text-blue-700 mt-0.5">Reserved</span>
-              </>
+              <Calendar className="w-3 h-3 text-blue-600" />
             )}
           </div>
         );
@@ -228,73 +214,73 @@ const MathClassScheduler = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 p-8">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 p-4">
       <div className="max-w-7xl mx-auto">
-        <div className="bg-gray-800 rounded-lg shadow-lg p-6 mb-6 border border-gray-700">
-          <h1 className="text-3xl font-bold text-white mb-4 flex items-center gap-2">
-            <Clock className="w-8 h-8 text-indigo-400" />
-            Math Class Schedule
+        <div className="bg-gray-800 rounded-lg shadow-lg p-4 mb-3 border border-gray-700">
+          <h1 className="text-2xl font-bold text-white mb-3 flex items-center gap-2">
+            <Clock className="w-6 h-6 text-indigo-400" />
+            Matematik Dersi Rezervasyon
           </h1>
           
-          <div className="flex gap-4 mb-4">
+          <div className="flex gap-3 mb-3">
             <button
               onClick={() => setViewMode('admin')}
-              className={`px-6 py-2 rounded-lg font-semibold transition-all ${
+              className={`px-4 py-1.5 rounded-lg font-semibold transition-all text-sm ${
                 viewMode === 'admin'
                   ? 'bg-indigo-600 text-white'
                   : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
               }`}
             >
-              👨‍🏫 Instructor View
+              👨‍🏫 Öğretmen
             </button>
             <button
               onClick={() => setViewMode('student')}
-              className={`px-6 py-2 rounded-lg font-semibold transition-all ${
+              className={`px-4 py-1.5 rounded-lg font-semibold transition-all text-sm ${
                 viewMode === 'student'
                   ? 'bg-indigo-600 text-white'
                   : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
               }`}
             >
-              👨‍🎓 Student Booking View
+              👨‍🎓 Öğrenci
             </button>
           </div>
 
-          <p className="text-gray-600 mb-4">
+          <p className="text-gray-400 mb-3 text-sm">
             {viewMode === 'admin' 
-              ? 'Click on available/blocked slots to toggle availability. Click booked slots to view student information.' 
-              : 'Click on available slots to select multiple time slots, then proceed to booking.'}
+              ? 'Müsait/dolu slotları değiştirmek için tıklayın. Rezerve edilmiş slotlara tıklayarak öğrenci bilgilerini görün.' 
+              : 'Birden fazla saat seçmek için müsait slotlara tıklayın, ardından rezervasyon yapın.'}
           </p>
           
-          <div className="flex gap-6 items-center flex-wrap">
-            <div className="flex items-center gap-2">
-              <div className="w-4 h-4 bg-green-100 border-2 border-green-300 rounded"></div>
-              <span className="text-sm text-gray-300">Available</span>
+          <div className="flex gap-4 items-center flex-wrap text-xs">
+            <div className="flex items-center gap-1.5">
+              <div className="w-3 h-3 bg-green-100 border border-green-300 rounded"></div>
+              <span className="text-gray-300">Müsait</span>
             </div>
             {viewMode === 'admin' && (
-              <div className="flex items-center gap-2">
-                <div className="w-4 h-4 bg-gray-200 border-2 border-gray-300 rounded"></div>
-                <span className="text-sm text-gray-300">Blocked (Instructor Busy)</span>
+              <div className="flex items-center gap-1.5">
+                <div className="w-3 h-3 bg-gray-200 border border-gray-300 rounded"></div>
+                <span className="text-gray-300">Kapalı</span>
               </div>
             )}
-            <div className="flex items-center gap-2">
-              <div className="w-4 h-4 bg-blue-100 border-2 border-blue-300 rounded"></div>
-              <span className="text-sm text-gray-300">
-                {viewMode === 'admin' ? 'Booked' : 'Reserved'}
+            <div className="flex items-center gap-1.5">
+              <div className="w-3 h-3 bg-blue-100 border border-blue-300 rounded"></div>
+              <span className="text-gray-300">
+                {viewMode === 'admin' ? 'Rezerve' : 'Dolu'}
               </span>
             </div>
             {viewMode === 'student' && (
-              <div className="flex items-center gap-2">
-                <div className="w-4 h-4 bg-indigo-200 border-2 border-indigo-400 rounded"></div>
-                <span className="text-sm text-gray-300">Selected</span>
+              <div className="flex items-center gap-1.5">
+                <div className="w-3 h-3 bg-indigo-200 border border-indigo-400 rounded"></div>
+                <span className="text-gray-300">Seçili</span>
               </div>
             )}
           </div>
         </div>
 
-        <div className="bg-gray-800 rounded-lg shadow-lg p-4 overflow-x-auto border border-gray-700">
+        <div className="bg-gray-800 rounded-lg shadow-lg p-3 overflow-x-auto border border-gray-700">
           <div className="min-w-max">
-            <div className="grid grid-cols-8 gap-1 mb-1">
-              <div className="font-semibold text-gray-300 p-1 text-xs">Time</div>
+            <div className="grid grid-cols-8 gap-0.5 mb-0.5">
+              <div className="font-semibold text-gray-300 p-1 text-xs">Saat</div>
               {weekdays.map(day => (
                 <div key={day} className="font-semibold text-gray-300 p-1 text-center text-xs">
                   {day.substring(0, 3)}
@@ -303,7 +289,7 @@ const MathClassScheduler = () => {
             </div>
 
             {timeSlots.map(time => (
-              <div key={time} className="grid grid-cols-8 gap-1 mb-1">
+              <div key={time} className="grid grid-cols-8 gap-0.5 mb-0.5">
                 <div className="font-medium text-gray-400 p-1 flex items-center text-xs">
                   {time}
                 </div>
@@ -318,16 +304,16 @@ const MathClassScheduler = () => {
         </div>
 
         {viewMode === 'student' && selectedSlots.length > 0 && (
-          <div className="mt-4 bg-gray-800 rounded-lg shadow-lg p-4 border border-gray-700">
+          <div className="mt-3 bg-gray-800 rounded-lg shadow-lg p-3 border border-gray-700">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="font-semibold text-white">
-                  {selectedSlots.length} slot{selectedSlots.length > 1 ? 's' : ''} selected
+                <h3 className="font-semibold text-white text-sm">
+                  {selectedSlots.length} saat seçildi
                 </h3>
-                <p className="text-sm text-gray-400">
+                <p className="text-xs text-gray-400">
                   {selectedSlots.map((slot, idx) => (
                     <span key={slot.key}>
-                      {slot.day} at {slot.time}
+                      {slot.day} {slot.time}
                       {idx < selectedSlots.length - 1 ? ', ' : ''}
                     </span>
                   ))}
@@ -336,78 +322,78 @@ const MathClassScheduler = () => {
               <div className="flex gap-2">
                 <button
                   onClick={() => setSelectedSlots([])}
-                  className="px-4 py-2 bg-gray-700 text-gray-300 rounded-lg font-semibold hover:bg-gray-600 transition-all"
+                  className="px-3 py-1.5 bg-gray-700 text-gray-300 rounded-lg font-semibold hover:bg-gray-600 transition-all text-sm"
                 >
-                  Clear
+                  Temizle
                 </button>
                 <button
                   onClick={proceedToBooking}
-                  className="px-6 py-2 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 transition-all"
+                  className="px-4 py-1.5 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 transition-all text-sm"
                 >
-                  Proceed to Booking
+                  Rezervasyon Yap
                 </button>
               </div>
             </div>
           </div>
         )}
 
-        <div className="mt-6 bg-gray-800 rounded-lg shadow-lg p-6 border border-gray-700">
-          <h2 className="text-xl font-semibold text-white mb-2">Class Details</h2>
-          <div className="text-gray-300 space-y-1">
-            <p>• Class Duration: <strong>45 minutes</strong></p>
-            <p>• Break Between Classes: <strong>15 minutes</strong></p>
-            <p>• Total Slot Duration: <strong>1 hour</strong></p>
-            <p>• Operating Hours: <strong>8:00 AM - 10:00 PM</strong></p>
+        <div className="mt-3 bg-gray-800 rounded-lg shadow-lg p-4 border border-gray-700">
+          <h2 className="text-lg font-semibold text-white mb-2">Ders Detayları</h2>
+          <div className="text-gray-300 space-y-1 text-sm">
+            <p>• Ders Süresi: <strong>45 dakika</strong></p>
+            <p>• Dersler Arası Mola: <strong>15 dakika</strong></p>
+            <p>• Toplam Slot Süresi: <strong>1 saat</strong></p>
+            <p>• Çalışma Saatleri: <strong>08:00 - 22:00</strong></p>
           </div>
         </div>
       </div>
 
       {showBookingForm && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg shadow-xl p-6 max-w-md w-full">
-            <h2 className="text-2xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-              <User className="w-6 h-6 text-indigo-600" />
-              Book Your Classes
+          <div className="bg-white rounded-lg shadow-xl p-6 max-w-md w-full max-h-[90vh] overflow-y-auto">
+            <h2 className="text-xl font-bold text-gray-800 mb-3 flex items-center gap-2">
+              <User className="w-5 h-5 text-indigo-600" />
+              Ders Rezervasyonu
             </h2>
-            <div className="bg-indigo-50 rounded-lg p-3 mb-4">
-              <h3 className="font-semibold text-gray-800 mb-2">Selected Time Slots:</h3>
+            <div className="bg-indigo-50 rounded-lg p-3 mb-3">
+              <h3 className="font-semibold text-gray-800 mb-2 text-sm">Seçilen Saatler:</h3>
               <div className="space-y-1 text-sm text-gray-700">
                 {selectedSlots.map((slot, idx) => (
-                  <p key={slot.key}>
-                    {idx + 1}. <strong>{slot.day}</strong> at <strong>{slot.time}</strong>
+                  <p key={slot.key} className="text-xs">
+                    {idx + 1}. <strong>{slot.day}</strong> saat <strong>{slot.time}</strong>
                   </p>
                 ))}
               </div>
             </div>
             <input
               type="text"
-              placeholder="Enter your name"
+              placeholder="Adınız Soyadınız"
               value={studentName}
               onChange={(e) => setStudentName(e.target.value)}
-              className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg mb-3 focus:outline-none focus:border-indigo-500"
+              className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg mb-2 focus:outline-none focus:border-indigo-500 text-sm"
             />
             <input
               type="email"
-              placeholder="Enter your email address"
+              placeholder="E-posta adresiniz"
               value={studentEmail}
               onChange={(e) => setStudentEmail(e.target.value)}
-              className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg mb-3 focus:outline-none focus:border-indigo-500"
+              className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg mb-2 focus:outline-none focus:border-indigo-500 text-sm"
               required
             />
             <input
               type="tel"
-              placeholder="Enter your phone number (optional)"
+              placeholder="Telefon numaranız (opsiyonel)"
               value={studentPhone}
               onChange={(e) => setStudentPhone(e.target.value)}
-              className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg mb-4 focus:outline-none focus:border-indigo-500"
+              className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg mb-3 focus:outline-none focus:border-indigo-500 text-sm"
             />
-            <div className="flex gap-3">
+            <div className="flex gap-2">
               <button
                 onClick={confirmBooking}
                 disabled={!studentName.trim() || !studentEmail.trim()}
-                className="flex-1 bg-indigo-600 text-white py-2 px-4 rounded-lg font-semibold hover:bg-indigo-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-all"
+                className="flex-1 bg-indigo-600 text-white py-2 px-4 rounded-lg font-semibold hover:bg-indigo-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-all text-sm"
               >
-                Confirm Booking
+                Onayla
               </button>
               <button
                 onClick={() => {
@@ -417,9 +403,9 @@ const MathClassScheduler = () => {
                   setStudentPhone('');
                   setSelectedSlots([]);
                 }}
-                className="flex-1 bg-gray-200 text-gray-700 py-2 px-4 rounded-lg font-semibold hover:bg-gray-300 transition-all"
+                className="flex-1 bg-gray-200 text-gray-700 py-2 px-4 rounded-lg font-semibold hover:bg-gray-300 transition-all text-sm"
               >
-                Cancel
+                İptal
               </button>
             </div>
           </div>
@@ -428,61 +414,61 @@ const MathClassScheduler = () => {
 
       {showConfirmation && lastBooking && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg shadow-xl p-6 max-w-md w-full">
-            <div className="text-center mb-4">
-              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Check className="w-8 h-8 text-green-600" />
+          <div className="bg-white rounded-lg shadow-xl p-6 max-w-md w-full max-h-[90vh] overflow-y-auto">
+            <div className="text-center mb-3">
+              <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                <Check className="w-6 h-6 text-green-600" />
               </div>
-              <h2 className="text-2xl font-bold text-gray-800 mb-2">Booking Confirmed!</h2>
-              <p className="text-gray-600">Your math class has been successfully booked.</p>
+              <h2 className="text-xl font-bold text-gray-800 mb-1">Rezervasyon Onaylandı!</h2>
+              <p className="text-gray-600 text-sm">Dersleriniz başarıyla rezerve edildi.</p>
             </div>
             
-            <div className="bg-indigo-50 rounded-lg p-4 mb-4">
-              <h3 className="font-semibold text-gray-800 mb-2">Booking Details:</h3>
-              <div className="space-y-3 text-sm text-gray-700">
-                <p><strong>Classes Booked:</strong> {lastBooking.slots.length}</p>
+            <div className="bg-indigo-50 rounded-lg p-3 mb-3">
+              <h3 className="font-semibold text-gray-800 mb-2 text-sm">Rezervasyon Detayları:</h3>
+              <div className="space-y-2 text-sm text-gray-700">
+                <p className="text-xs"><strong>Toplam Ders:</strong> {lastBooking.slots.length}</p>
                 {lastBooking.slots.map((slot, idx) => (
-                  <div key={slot.key} className="ml-4 p-3 bg-white rounded border border-indigo-200">
-                    <p className="font-semibold text-indigo-700 mb-1">
-                      Class {idx + 1}: {slot.day} at {slot.time}
+                  <div key={slot.key} className="ml-2 p-2 bg-white rounded border border-indigo-200">
+                    <p className="font-semibold text-indigo-700 mb-1 text-xs">
+                      Ders {idx + 1}: {slot.day} saat {slot.time}
                     </p>
-                    <div className="text-xs space-y-1">
-                      <p><strong>Zoom Link:</strong></p>
+                    <div className="text-xs space-y-0.5">
+                      <p><strong>Zoom Linki:</strong></p>
                       <a 
                         href={slot.zoomInfo.joinUrl} 
                         target="_blank" 
                         rel="noopener noreferrer"
-                        className="text-blue-600 hover:text-blue-800 underline break-all"
+                        className="text-blue-600 hover:text-blue-800 underline break-all block"
                       >
                         {slot.zoomInfo.joinUrl}
                       </a>
-                      <p><strong>Meeting ID:</strong> {slot.zoomInfo.meetingId}</p>
-                      <p><strong>Password:</strong> {slot.zoomInfo.password}</p>
+                      <p><strong>Toplantı ID:</strong> {slot.zoomInfo.meetingId}</p>
+                      <p><strong>Şifre:</strong> {slot.zoomInfo.password}</p>
                     </div>
                   </div>
                 ))}
-                <div className="pt-2 border-t border-indigo-200">
-                  <p><strong>Duration per class:</strong> 45 minutes</p>
-                  <p><strong>Name:</strong> {lastBooking.studentName}</p>
-                  <p><strong>Email:</strong> {lastBooking.studentEmail}</p>
+                <div className="pt-2 border-t border-indigo-200 text-xs">
+                  <p><strong>Ders Süresi:</strong> 45 dakika</p>
+                  <p><strong>İsim:</strong> {lastBooking.studentName}</p>
+                  <p><strong>E-posta:</strong> {lastBooking.studentEmail}</p>
                   {lastBooking.studentPhone && (
-                    <p><strong>Phone:</strong> {lastBooking.studentPhone}</p>
+                    <p><strong>Telefon:</strong> {lastBooking.studentPhone}</p>
                   )}
                 </div>
               </div>
             </div>
 
-            <div className="bg-blue-50 border-l-4 border-blue-500 p-3 mb-4">
-              <p className="text-sm text-blue-800">
-                📧 A confirmation email has been sent to <strong>{lastBooking.studentEmail}</strong> with all Zoom meeting links and class details.
+            <div className="bg-blue-50 border-l-4 border-blue-500 p-2 mb-3">
+              <p className="text-xs text-blue-800">
+                📧 <strong>{lastBooking.studentEmail}</strong> adresine tüm Zoom linkleri ve ders detayları içeren onay e-postası gönderildi.
               </p>
             </div>
             
             <button
               onClick={() => setShowConfirmation(false)}
-              className="w-full bg-indigo-600 text-white py-2 px-4 rounded-lg font-semibold hover:bg-indigo-700 transition-all"
+              className="w-full bg-indigo-600 text-white py-2 px-4 rounded-lg font-semibold hover:bg-indigo-700 transition-all text-sm"
             >
-              Close
+              Kapat
             </button>
           </div>
         </div>
@@ -490,75 +476,75 @@ const MathClassScheduler = () => {
 
       {showStudentInfo && selectedStudentInfo && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg shadow-xl p-6 max-w-md w-full">
-            <h2 className="text-2xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-              <User className="w-6 h-6 text-indigo-600" />
-              Student Information
+          <div className="bg-white rounded-lg shadow-xl p-6 max-w-md w-full max-h-[90vh] overflow-y-auto">
+            <h2 className="text-xl font-bold text-gray-800 mb-3 flex items-center gap-2">
+              <User className="w-5 h-5 text-indigo-600" />
+              Öğrenci Bilgileri
             </h2>
             
-            <div className="bg-indigo-50 rounded-lg p-4 mb-4">
-              <h3 className="font-semibold text-gray-800 mb-3">Class Details:</h3>
-              <div className="space-y-2 text-sm text-gray-700">
+            <div className="bg-indigo-50 rounded-lg p-3 mb-3">
+              <h3 className="font-semibold text-gray-800 mb-2 text-sm">Ders Detayları:</h3>
+              <div className="space-y-1 text-sm text-gray-700">
                 <div className="flex items-start">
-                  <span className="font-semibold w-24">Day:</span>
-                  <span>{selectedStudentInfo.day}</span>
+                  <span className="font-semibold w-20 text-xs">Gün:</span>
+                  <span className="text-xs">{selectedStudentInfo.day}</span>
                 </div>
                 <div className="flex items-start">
-                  <span className="font-semibold w-24">Time:</span>
-                  <span>{selectedStudentInfo.time}</span>
+                  <span className="font-semibold w-20 text-xs">Saat:</span>
+                  <span className="text-xs">{selectedStudentInfo.time}</span>
                 </div>
                 <div className="flex items-start">
-                  <span className="font-semibold w-24">Duration:</span>
-                  <span>45 minutes</span>
+                  <span className="font-semibold w-20 text-xs">Süre:</span>
+                  <span className="text-xs">45 dakika</span>
                 </div>
               </div>
             </div>
 
-            <div className="bg-blue-50 rounded-lg p-4 mb-4">
-              <h3 className="font-semibold text-gray-800 mb-3">Student Details:</h3>
-              <div className="space-y-2 text-sm text-gray-700">
+            <div className="bg-blue-50 rounded-lg p-3 mb-3">
+              <h3 className="font-semibold text-gray-800 mb-2 text-sm">Öğrenci Detayları:</h3>
+              <div className="space-y-1 text-sm text-gray-700">
                 <div className="flex items-start">
-                  <span className="font-semibold w-24">Name:</span>
-                  <span>{selectedStudentInfo.studentName}</span>
+                  <span className="font-semibold w-20 text-xs">İsim:</span>
+                  <span className="text-xs">{selectedStudentInfo.studentName}</span>
                 </div>
                 <div className="flex items-start">
-                  <span className="font-semibold w-24">Email:</span>
-                  <span className="break-all">{selectedStudentInfo.studentEmail}</span>
+                  <span className="font-semibold w-20 text-xs">E-posta:</span>
+                  <span className="break-all text-xs">{selectedStudentInfo.studentEmail}</span>
                 </div>
                 {selectedStudentInfo.studentPhone && (
                   <div className="flex items-start">
-                    <span className="font-semibold w-24">Phone:</span>
-                    <span>{selectedStudentInfo.studentPhone}</span>
+                    <span className="font-semibold w-20 text-xs">Telefon:</span>
+                    <span className="text-xs">{selectedStudentInfo.studentPhone}</span>
                   </div>
                 )}
               </div>
             </div>
 
             {selectedStudentInfo.zoomLink && (
-              <div className="bg-green-50 rounded-lg p-4 mb-4 border border-green-200">
-                <h3 className="font-semibold text-gray-800 mb-3 flex items-center gap-2">
-                  <Calendar className="w-5 h-5 text-green-600" />
-                  Zoom Meeting Details:
+              <div className="bg-green-50 rounded-lg p-3 mb-3 border border-green-200">
+                <h3 className="font-semibold text-gray-800 mb-2 flex items-center gap-2 text-sm">
+                  <Calendar className="w-4 h-4 text-green-600" />
+                  Zoom Toplantı Detayları:
                 </h3>
-                <div className="space-y-2 text-sm text-gray-700">
+                <div className="space-y-1 text-sm text-gray-700">
                   <div>
-                    <span className="font-semibold">Join URL:</span>
+                    <span className="font-semibold text-xs">Katılım Linki:</span>
                     <a 
                       href={selectedStudentInfo.zoomLink} 
                       target="_blank" 
                       rel="noopener noreferrer"
-                      className="block text-blue-600 hover:text-blue-800 underline break-all mt-1"
+                      className="block text-blue-600 hover:text-blue-800 underline break-all mt-1 text-xs"
                     >
                       {selectedStudentInfo.zoomLink}
                     </a>
                   </div>
                   <div className="flex items-start">
-                    <span className="font-semibold w-28">Meeting ID:</span>
-                    <span>{selectedStudentInfo.meetingId}</span>
+                    <span className="font-semibold w-24 text-xs">Toplantı ID:</span>
+                    <span className="text-xs">{selectedStudentInfo.meetingId}</span>
                   </div>
                   <div className="flex items-start">
-                    <span className="font-semibold w-28">Password:</span>
-                    <span>{selectedStudentInfo.meetingPassword}</span>
+                    <span className="font-semibold w-24 text-xs">Şifre:</span>
+                    <span className="text-xs">{selectedStudentInfo.meetingPassword}</span>
                   </div>
                 </div>
               </div>
@@ -566,9 +552,9 @@ const MathClassScheduler = () => {
             
             <button
               onClick={() => setShowStudentInfo(false)}
-              className="w-full bg-indigo-600 text-white py-2 px-4 rounded-lg font-semibold hover:bg-indigo-700 transition-all"
+              className="w-full bg-indigo-600 text-white py-2 px-4 rounded-lg font-semibold hover:bg-indigo-700 transition-all text-sm"
             >
-              Close
+              Kapat
             </button>
           </div>
         </div>
