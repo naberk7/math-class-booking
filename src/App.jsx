@@ -10,7 +10,7 @@ const MathClassScheduler = () => {
     '20:00', '21:00', '22:00'
   ];
 
-  const [viewMode, setViewMode] = useState('admin');
+  const [viewMode, setViewMode] = useState('student'); // Öğrenci sekmesiyle başlasın
   const [selectedSlot, setSelectedSlot] = useState(null);
   const [selectedSlots, setSelectedSlots] = useState([]);
   const [showBookingForm, setShowBookingForm] = useState(false);
@@ -24,9 +24,42 @@ const MathClassScheduler = () => {
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [passwordInput, setPasswordInput] = useState('');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [showResetModal, setShowResetModal] = useState(false);
 
-  // Öğretmen şifresi - Gerçek uygulamada bunu environment variable olarak saklamalısın
+  // Öğretmen şifresi
   const TEACHER_PASSWORD = '776110';
+
+  // Haftanın tarih aralığını hesapla
+  const getWeekRange = () => {
+    const today = new Date();
+    const dayOfWeek = today.getDay(); // 0 = Pazar, 1 = Pazartesi, ...
+    
+    // Pazartesi'yi haftanın ilk günü olarak hesapla
+    const monday = new Date(today);
+    monday.setDate(today.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1));
+    
+    // Pazar'ı haftanın son günü olarak hesapla
+    const sunday = new Date(monday);
+    sunday.setDate(monday.getDate() + 6);
+    
+    const monthNames = [
+      'Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran',
+      'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'
+    ];
+    
+    const startDay = monday.getDate();
+    const endDay = sunday.getDate();
+    const startMonth = monthNames[monday.getMonth()];
+    const endMonth = monthNames[sunday.getMonth()];
+    const year = sunday.getFullYear();
+    
+    // Eğer ay değiştiysa
+    if (startMonth !== endMonth) {
+      return `${startDay} ${startMonth} - ${endDay} ${endMonth} ${year}`;
+    } else {
+      return `${startDay}-${endDay} ${endMonth} ${year}`;
+    }
+  };
 
   const [schedule, setSchedule] = useState(() => {
     const initial = {};
@@ -39,17 +72,52 @@ const MathClassScheduler = () => {
     return initial;
   });
 
+  const handleTeacherViewClick = () => {
+    if (!isAuthenticated) {
+      setShowPasswordModal(true);
+    } else {
+      setViewMode('admin');
+    }
+  };
+
+  const handlePasswordSubmit = () => {
+    if (passwordInput === TEACHER_PASSWORD) {
+      setIsAuthenticated(true);
+      setViewMode('admin');
+      setShowPasswordModal(false);
+      setPasswordInput('');
+    } else {
+      alert('Yanlış şifre! Lütfen tekrar deneyin.');
+      setPasswordInput('');
+    }
+  };
+
   const toggleSlotAvailability = (day, time) => {
-    setSchedule(prev => ({
-      ...prev,
-      [day]: {
-        ...prev[day],
-        [time]: {
-          ...prev[day][time],
-          status: prev[day][time].status === 'available' ? 'blocked' : 'available'
-        }
+    setSchedule(prev => {
+      const currentStatus = prev[day][time].status;
+      let newStatus;
+      
+      // 2 durum döngüsü: available ↔ blocked
+      if (currentStatus === 'available') {
+        newStatus = 'blocked';
+      } else if (currentStatus === 'blocked') {
+        newStatus = 'available';
+      } else {
+        // booked ise değiştirme
+        return prev;
       }
-    }));
+      
+      return {
+        ...prev,
+        [day]: {
+          ...prev[day],
+          [time]: {
+            ...prev[day][time],
+            status: newStatus
+          }
+        }
+      };
+    });
   };
 
   const viewStudentInfo = (day, time) => {
@@ -62,6 +130,18 @@ const MathClassScheduler = () => {
       });
       setShowStudentInfo(true);
     }
+  };
+
+  const handleResetSchedule = () => {
+    const initial = {};
+    weekdays.forEach(day => {
+      initial[day] = {};
+      timeSlots.forEach(time => {
+        initial[day][time] = { status: 'available', studentName: '' };
+      });
+    });
+    setSchedule(initial);
+    setShowResetModal(false);
   };
 
   const handleBookSlot = (day, time) => {
@@ -157,7 +237,7 @@ const MathClassScheduler = () => {
           ? 'bg-green-100 hover:bg-green-200 border-green-300 cursor-pointer'
           : 'bg-green-100 hover:bg-green-300 border-green-400 cursor-pointer';
       case 'blocked':
-        return 'bg-gray-200 border-gray-300 cursor-not-allowed';
+        return 'bg-gray-200 border-gray-300 cursor-pointer hover:bg-gray-300';
       case 'booked':
         return 'bg-blue-100 border-blue-300 cursor-not-allowed';
       default:
@@ -184,7 +264,13 @@ const MathClassScheduler = () => {
     if (viewMode === 'admin') {
       return (
         <button
-          onClick={() => slot.status === 'booked' ? viewStudentInfo(day, time) : toggleSlotAvailability(day, time)}
+          onClick={() => {
+            if (slot.status === 'booked') {
+              viewStudentInfo(day, time);
+            } else {
+              toggleSlotAvailability(day, time);
+            }
+          }}
           className={`p-1.5 border rounded transition-all flex flex-col items-center justify-center h-10 text-xs ${getSlotColor(slot.status)}`}
         >
           {getSlotIcon(slot.status)}
@@ -206,6 +292,7 @@ const MathClassScheduler = () => {
           </button>
         );
       } else {
+        // Öğrenciler için blocked ve booked farklı görünsün
         return (
           <div className={`p-1.5 border rounded flex items-center justify-center h-10 text-xs ${getSlotColor(slot.status)}`}>
             {slot.status === 'blocked' ? (
@@ -223,14 +310,20 @@ const MathClassScheduler = () => {
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 p-4">
       <div className="max-w-7xl mx-auto">
         <div className="bg-gray-800 rounded-lg shadow-lg p-4 mb-3 border border-gray-700">
-          <h1 className="text-2xl font-bold text-white mb-3 flex items-center gap-2">
-            <Clock className="w-6 h-6 text-indigo-400" />
-            Matematik Dersi Rezervasyon
-          </h1>
+          <div className="flex items-center justify-between mb-3">
+            <h1 className="text-2xl font-bold text-white flex items-center gap-2">
+              <Clock className="w-6 h-6 text-indigo-400" />
+              Matematik Soru Çözüm Rezervasyon
+            </h1>
+            <div className="text-right">
+              <p className="text-xs text-gray-400">Bu Hafta</p>
+              <p className="text-sm font-semibold text-indigo-400">{getWeekRange()}</p>
+            </div>
+          </div>
           
           <div className="flex gap-3 mb-3">
             <button
-              onClick={() => setViewMode('admin')}
+              onClick={handleTeacherViewClick}
               className={`px-4 py-1.5 rounded-lg font-semibold transition-all text-sm ${
                 viewMode === 'admin'
                   ? 'bg-indigo-600 text-white'
@@ -249,11 +342,20 @@ const MathClassScheduler = () => {
             >
               👨‍🎓 Öğrenci
             </button>
+            
+            {viewMode === 'admin' && (
+              <button
+                onClick={() => setShowResetModal(true)}
+                className="ml-auto px-4 py-1.5 rounded-lg font-semibold transition-all text-sm bg-red-600 text-white hover:bg-red-700"
+              >
+                🔄 Haftalık Reset
+              </button>
+            )}
           </div>
 
           <p className="text-gray-400 mb-3 text-sm">
             {viewMode === 'admin' 
-              ? 'Müsait/dolu slotları değiştirmek için tıklayın. Rezerve edilmiş slotlara tıklayarak öğrenci bilgilerini görün.' 
+              ? 'Slotlara tıklayarak müsait/kapalı durumlarını değiştirin. Rezerve edilmiş slotlara tıklayarak öğrenci bilgilerini görün.' 
               : 'Birden fazla saat seçmek için müsait slotlara tıklayın, ardından rezervasyon yapın.'}
           </p>
           
@@ -562,6 +664,81 @@ const MathClassScheduler = () => {
             >
               Kapat
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* Şifre Modal */}
+      {showPasswordModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg shadow-xl p-6 max-w-sm w-full">
+            <h2 className="text-xl font-bold text-gray-800 mb-3 flex items-center gap-2">
+              🔒 Öğretmen Girişi
+            </h2>
+            <p className="text-gray-600 text-sm mb-4">
+              Öğretmen paneline erişmek için lütfen şifrenizi girin.
+            </p>
+            <input
+              type="password"
+              placeholder="Şifre"
+              value={passwordInput}
+              onChange={(e) => setPasswordInput(e.target.value)}
+              onKeyPress={(e) => e.key === 'Enter' && handlePasswordSubmit()}
+              className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg mb-4 focus:outline-none focus:border-indigo-500"
+              autoFocus
+            />
+            <div className="flex gap-3">
+              <button
+                onClick={handlePasswordSubmit}
+                className="flex-1 bg-indigo-600 text-white py-2 px-4 rounded-lg font-semibold hover:bg-indigo-700 transition-all text-sm"
+              >
+                Giriş Yap
+              </button>
+              <button
+                onClick={() => {
+                  setShowPasswordModal(false);
+                  setPasswordInput('');
+                }}
+                className="flex-1 bg-gray-200 text-gray-700 py-2 px-4 rounded-lg font-semibold hover:bg-gray-300 transition-all text-sm"
+              >
+                İptal
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Reset Onay Modal */}
+      {showResetModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg shadow-xl p-6 max-w-sm w-full">
+            <h2 className="text-xl font-bold text-gray-800 mb-3 flex items-center gap-2">
+              ⚠️ Haftalık Reset
+            </h2>
+            <p className="text-gray-700 text-sm mb-2">
+              Tüm slotları sıfırlamak üzeresiniz. Bu işlem:
+            </p>
+            <ul className="text-gray-600 text-sm mb-4 list-disc ml-5 space-y-1">
+              <li>Tüm kapalı slotları müsait yapacak</li>
+              <li><strong className="text-red-600">Gerçek rezervasyonları da silecek!</strong></li>
+            </ul>
+            <p className="text-red-600 font-semibold text-sm mb-4">
+              Bu işlem geri alınamaz. Emin misiniz?
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={handleResetSchedule}
+                className="flex-1 bg-red-600 text-white py-2 px-4 rounded-lg font-semibold hover:bg-red-700 transition-all text-sm"
+              >
+                Evet, Sıfırla
+              </button>
+              <button
+                onClick={() => setShowResetModal(false)}
+                className="flex-1 bg-gray-200 text-gray-700 py-2 px-4 rounded-lg font-semibold hover:bg-gray-300 transition-all text-sm"
+              >
+                İptal
+              </button>
+            </div>
           </div>
         </div>
       )}
