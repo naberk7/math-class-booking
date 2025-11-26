@@ -10,7 +10,7 @@ const MathClassScheduler = () => {
     '20:00', '21:00', '22:00'
   ];
 
-  const [viewMode, setViewMode] = useState('student');
+  const [viewMode, setViewMode] = useState('admin');
   const [selectedSlot, setSelectedSlot] = useState(null);
   const [selectedSlots, setSelectedSlots] = useState([]);
   const [showBookingForm, setShowBookingForm] = useState(false);
@@ -24,42 +24,9 @@ const MathClassScheduler = () => {
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [passwordInput, setPasswordInput] = useState('');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [showResetModal, setShowResetModal] = useState(false);
 
-  // Öğretmen şifresi
+  // Öğretmen şifresi - Gerçek uygulamada bunu environment variable olarak saklamalısın
   const TEACHER_PASSWORD = '776110';
-
-  // Haftanın tarih aralığını hesapla
-  const getWeekRange = () => {
-    const today = new Date();
-    const dayOfWeek = today.getDay(); // 0 = Pazar, 1 = Pazartesi, ...
-    
-    // Pazartesi'yi haftanın ilk günü olarak hesapla
-    const monday = new Date(today);
-    monday.setDate(today.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1));
-    
-    // Pazar'ı haftanın son günü olarak hesapla
-    const sunday = new Date(monday);
-    sunday.setDate(monday.getDate() + 6);
-    
-    const monthNames = [
-      'Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran',
-      'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'
-    ];
-    
-    const startDay = monday.getDate();
-    const endDay = sunday.getDate();
-    const startMonth = monthNames[monday.getMonth()];
-    const endMonth = monthNames[sunday.getMonth()];
-    const year = sunday.getFullYear();
-    
-    // Eğer ay değiştiysa
-    if (startMonth !== endMonth) {
-      return `${startDay} ${startMonth} - ${endDay} ${endMonth} ${year}`;
-    } else {
-      return `${startDay}-${endDay} ${endMonth} ${year}`;
-    }
-  };
 
   const [schedule, setSchedule] = useState(() => {
     const initial = {};
@@ -72,52 +39,17 @@ const MathClassScheduler = () => {
     return initial;
   });
 
-  const handleTeacherViewClick = () => {
-    if (!isAuthenticated) {
-      setShowPasswordModal(true);
-    } else {
-      setViewMode('admin');
-    }
-  };
-
-  const handlePasswordSubmit = () => {
-    if (passwordInput === TEACHER_PASSWORD) {
-      setIsAuthenticated(true);
-      setViewMode('admin');
-      setShowPasswordModal(false);
-      setPasswordInput('');
-    } else {
-      alert('Yanlış şifre! Lütfen tekrar deneyin.');
-      setPasswordInput('');
-    }
-  };
-
   const toggleSlotAvailability = (day, time) => {
-    setSchedule(prev => {
-      const currentStatus = prev[day][time].status;
-      let newStatus;
-      
-      // 2 durum döngüsü: available ↔ blocked
-      if (currentStatus === 'available') {
-        newStatus = 'blocked';
-      } else if (currentStatus === 'blocked') {
-        newStatus = 'available';
-      } else {
-        // booked ise değiştirme
-        return prev;
-      }
-      
-      return {
-        ...prev,
-        [day]: {
-          ...prev[day],
-          [time]: {
-            ...prev[day][time],
-            status: newStatus
-          }
+    setSchedule(prev => ({
+      ...prev,
+      [day]: {
+        ...prev[day],
+        [time]: {
+          ...prev[day][time],
+          status: prev[day][time].status === 'available' ? 'blocked' : 'available'
         }
-      };
-    });
+      }
+    }));
   };
 
   const viewStudentInfo = (day, time) => {
@@ -130,18 +62,6 @@ const MathClassScheduler = () => {
       });
       setShowStudentInfo(true);
     }
-  };
-
-  const handleResetSchedule = () => {
-    const initial = {};
-    weekdays.forEach(day => {
-      initial[day] = {};
-      timeSlots.forEach(time => {
-        initial[day][time] = { status: 'available', studentName: '' };
-      });
-    });
-    setSchedule(initial);
-    setShowResetModal(false);
   };
 
   const handleBookSlot = (day, time) => {
@@ -237,7 +157,7 @@ const MathClassScheduler = () => {
           ? 'bg-green-100 hover:bg-green-200 border-green-300 cursor-pointer'
           : 'bg-green-100 hover:bg-green-300 border-green-400 cursor-pointer';
       case 'blocked':
-        return 'bg-gray-200 border-gray-300 cursor-pointer hover:bg-gray-300';
+        return 'bg-gray-200 border-gray-300 cursor-not-allowed';
       case 'booked':
         return 'bg-blue-100 border-blue-300 cursor-not-allowed';
       default:
@@ -264,14 +184,8 @@ const MathClassScheduler = () => {
     if (viewMode === 'admin') {
       return (
         <button
-          onClick={() => {
-            if (slot.status === 'booked') {
-              viewStudentInfo(day, time);
-            } else {
-              toggleSlotAvailability(day, time);
-            }
-          }}
-          className={`w-full p-1.5 border rounded transition-all flex flex-col items-center justify-center h-10 text-xs ${getSlotColor(slot.status)}`}
+          onClick={() => slot.status === 'booked' ? viewStudentInfo(day, time) : toggleSlotAvailability(day, time)}
+          className={`p-1.5 border rounded transition-all flex flex-col items-center justify-center h-10 text-xs ${getSlotColor(slot.status)}`}
         >
           {getSlotIcon(slot.status)}
         </button>
@@ -282,7 +196,7 @@ const MathClassScheduler = () => {
         return (
           <button
             onClick={() => handleBookSlot(day, time)}
-            className={`w-full p-1.5 border rounded transition-all flex items-center justify-center h-10 ${getSlotColor(slot.status, selected)} font-semibold text-xs`}
+            className={`p-1.5 border rounded transition-all flex items-center justify-center h-10 ${getSlotColor(slot.status, selected)} font-semibold text-xs`}
           >
             {selected ? (
               <Check className="w-4 h-4 text-indigo-700" />
@@ -292,9 +206,8 @@ const MathClassScheduler = () => {
           </button>
         );
       } else {
-        // Öğrenciler için blocked ve booked farklı görünsün
         return (
-          <div className={`w-full p-1.5 border rounded flex items-center justify-center h-10 text-xs ${getSlotColor(slot.status)}`}>
+          <div className={`p-1.5 border rounded flex items-center justify-center h-10 text-xs ${getSlotColor(slot.status)}`}>
             {slot.status === 'blocked' ? (
               <X className="w-4 h-4 text-gray-600" />
             ) : (
@@ -310,20 +223,14 @@ const MathClassScheduler = () => {
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 p-4">
       <div className="max-w-7xl mx-auto">
         <div className="bg-gray-800 rounded-lg shadow-lg p-4 mb-3 border border-gray-700">
-          <div className="flex items-center justify-between mb-3">
-            <h1 className="text-2xl font-bold text-white flex items-center gap-2">
-              <Clock className="w-6 h-6 text-indigo-400" />
-              Matematik Soru Çözüm Rezervasyon
-            </h1>
-            <div className="text-right">
-              <p className="text-xs text-gray-400">Bu Hafta</p>
-              <p className="text-sm font-semibold text-indigo-400">{getWeekRange()}</p>
-            </div>
-          </div>
+          <h1 className="text-2xl font-bold text-white mb-3 flex items-center gap-2">
+            <Clock className="w-6 h-6 text-indigo-400" />
+            Matematik Dersi Rezervasyon
+          </h1>
           
-          <div className="flex gap-3 mb-3 flex-wrap">
+          <div className="flex gap-3 mb-3">
             <button
-              onClick={handleTeacherViewClick}
+              onClick={() => setViewMode('admin')}
               className={`px-4 py-1.5 rounded-lg font-semibold transition-all text-sm ${
                 viewMode === 'admin'
                   ? 'bg-indigo-600 text-white'
@@ -342,33 +249,12 @@ const MathClassScheduler = () => {
             >
               👨‍🎓 Öğrenci
             </button>
-            <button
-              onClick={() => setViewMode('info')}
-              className={`px-4 py-1.5 rounded-lg font-semibold transition-all text-sm ${
-                viewMode === 'info'
-                  ? 'bg-indigo-600 text-white'
-                  : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-              }`}
-            >
-              ℹ️ Nasıl Çalışır?
-            </button>
-            
-            {viewMode === 'admin' && (
-              <button
-                onClick={() => setShowResetModal(true)}
-                className="ml-auto px-4 py-1.5 rounded-lg font-semibold transition-all text-sm bg-red-600 text-white hover:bg-red-700"
-              >
-                🔄 Haftalık Reset
-              </button>
-            )}
           </div>
 
           <p className="text-gray-400 mb-3 text-sm">
             {viewMode === 'admin' 
-              ? 'Slotlara tıklayarak müsait/kapalı durumlarını değiştirin. Rezerve edilmiş slotlara tıklayarak öğrenci bilgilerini görün.' 
-              : viewMode === 'student'
-              ? 'Birden fazla saat seçmek için müsait slotlara tıklayın, ardından rezervasyon yapın.'
-              : 'Matematik soru çözümü hizmeti hakkında bilgiler ve rezervasyon süreci.'}
+              ? 'Müsait/dolu slotları değiştirmek için tıklayın. Rezerve edilmiş slotlara tıklayarak öğrenci bilgilerini görün.' 
+              : 'Birden fazla saat seçmek için müsait slotlara tıklayın, ardından rezervasyon yapın.'}
           </p>
           
           <div className="flex gap-4 items-center flex-wrap text-xs">
@@ -397,120 +283,34 @@ const MathClassScheduler = () => {
           </div>
         </div>
 
-        {/* Nasıl Çalışır Sayfası */}
-        {viewMode === 'info' && (
-          <div className="space-y-4">
-            {/* Hakkımda Bölümü */}
-            <div className="bg-gray-800 rounded-lg shadow-lg p-6 border border-gray-700">
-              <h2 className="text-2xl font-bold text-white mb-4 flex items-center gap-2">
-                <User className="w-6 h-6 text-indigo-400" />
-                Hakkımda
-              </h2>
-              <div className="bg-gray-700 rounded-lg p-4 mb-4">
-                <p className="text-gray-300 text-sm leading-relaxed mb-3">
-                  Merhaba! Ben [Adınız], matematik alanında uzmanlaşmış bir eğitmeniyim. 
-                  Öğrencilere birebir online soru çözümü ve matematik desteği sağlıyorum.
-                </p>
-                <p className="text-gray-300 text-sm leading-relaxed">
-                  • [Eğitim geçmişiniz]<br/>
-                  • [Deneyimleriniz]<br/>
-                  • [Uzmanlık alanlarınız]
-                </p>
-              </div>
-              <button className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-semibold transition-all text-sm flex items-center gap-2">
-                📄 CV'mi İndir
-              </button>
+        <div className="bg-gray-800 rounded-lg shadow-lg p-3 overflow-x-auto border border-gray-700">
+          <div className="min-w-max">
+            <div className="grid grid-cols-8 mb-0.5" style={{gap: '2px'}}>
+              <div className="font-semibold text-gray-300 p-1 text-xs">Saat</div>
+              {weekdays.map(day => (
+                <div key={day} className="font-semibold text-gray-300 p-1 text-center text-xs">
+                  {day.substring(0, 3)}
+                </div>
+              ))}
             </div>
 
-            {/* Nasıl Çalışır Bölümü */}
-            <div className="bg-gray-800 rounded-lg shadow-lg p-6 border border-gray-700">
-              <h2 className="text-2xl font-bold text-white mb-4 flex items-center gap-2">
-                <Calendar className="w-6 h-6 text-indigo-400" />
-                Rezervasyon ve Soru Çözümü Nasıl Çalışıyor?
-              </h2>
-              
-              <div className="space-y-4">
-                {/* Adım 1 */}
-                <div className="bg-gray-700 rounded-lg p-4 border-l-4 border-indigo-500">
-                  <h3 className="text-lg font-semibold text-white mb-2">📅 1. Rezervasyon</h3>
-                  <p className="text-gray-300 text-sm leading-relaxed">
-                    Müsaitliğime göre, dilediğiniz slot için <strong>ücretsiz rezervasyon</strong> oluşturabilirsiniz.
-                  </p>
+            {timeSlots.map(time => (
+              <div key={time} className="grid grid-cols-8 mb-0.5" style={{gap: '2px'}}>
+                <div className="font-medium text-gray-400 p-1 flex items-center text-xs">
+                  {time}
                 </div>
-
-                {/* Adım 2 */}
-                <div className="bg-gray-700 rounded-lg p-4 border-l-4 border-green-500">
-                  <h3 className="text-lg font-semibold text-white mb-2">📧 2. Otomatik Zoom Linki</h3>
-                  <p className="text-gray-300 text-sm leading-relaxed">
-                    Rezervasyonunuzun ardından belirtilen slotlar için otomatik olarak Zoom görüşmeleri oluşturulacaktır. 
-                    Bu görüşmelerin linki ve gerekli tüm bilgiler size ayrıca mail olarak gönderilecektir. 
-                    Bu yüzden <strong className="text-yellow-300">özellikle mail adresinizi doğru yazmanız gerekmektedir.</strong>
-                  </p>
-                </div>
-
-                {/* Adım 3 */}
-                <div className="bg-gray-700 rounded-lg p-4 border-l-4 border-yellow-500">
-                  <h3 className="text-lg font-semibold text-white mb-2">📝 3. Soruları Hazırlayın</h3>
-                  <p className="text-gray-300 text-sm leading-relaxed mb-2">
-                    Artık görüşmeye hazır sayılırız, ancak:
-                  </p>
-                  <p className="text-yellow-300 text-sm font-bold underline bg-gray-800 p-2 rounded">
-                    ⚠️ Öğrenci kesinlikle soracağı soruları birleştirerek bir PDF dosyasına dönüştürmelidir.
-                  </p>
-                  <p className="text-gray-300 text-sm leading-relaxed mt-2">
-                    Zaman kaybı olmaması için, görüşme başladığında bu dosyayı öğretmene iletmelidir. 
-                    (İsterse önceden mail atabilir.)
-                  </p>
-                </div>
-
-                {/* Adım 4 */}
-                <div className="bg-gray-700 rounded-lg p-4 border-l-4 border-blue-500">
-                  <h3 className="text-lg font-semibold text-white mb-2">💰 4. Ücret Bilgileri</h3>
-                  <div className="text-gray-300 text-sm space-y-2">
-                    <p className="flex items-center gap-2">
-                      <span className="text-indigo-400 font-bold">•</span>
-                      Bir slot için ücret: <strong className="text-green-400">500 TL</strong>
-                    </p>
-                    <p className="flex items-center gap-2">
-                      <span className="text-indigo-400 font-bold">•</span>
-                      Süre: <strong className="text-blue-400">45 dakika</strong>
-                    </p>
-                    <p className="flex items-center gap-2">
-                      <span className="text-indigo-400 font-bold">•</span>
-                      Ödeme zamanı: <strong className="text-yellow-400">Görüşme başladıktan sonra</strong>
-                    </p>
+                {weekdays.map(day => (
+                  <div key={`${day}-${time}`}>
+                    {renderSlot(day, time)}
                   </div>
-                </div>
-
-                {/* Garanti */}
-                <div className="bg-gradient-to-r from-green-900 to-green-800 rounded-lg p-4 border border-green-600">
-                  <h3 className="text-lg font-semibold text-white mb-2">✅ Memnuniyet Garantisi</h3>
-                  <p className="text-gray-200 text-sm leading-relaxed">
-                    Memnun kalınmadığında para iadesi yapılabilir. Eğer öğretmen de dersin fayda sağlamadığını düşünürse 
-                    karşılıklı olarak anlaşılabilir.
-                  </p>
-                </div>
+                ))}
               </div>
-            </div>
-
-            {/* Hemen Rezervasyon Yap Butonu */}
-            <div className="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-lg shadow-lg p-6 text-center">
-              <h3 className="text-xl font-bold text-white mb-2">Hazır mısınız?</h3>
-              <p className="text-indigo-100 text-sm mb-4">Hemen şimdi ücretsiz rezervasyon oluşturun!</p>
-              <button
-                onClick={() => setViewMode('student')}
-                className="bg-white text-indigo-600 px-6 py-3 rounded-lg font-bold hover:bg-gray-100 transition-all text-base"
-              >
-                🚀 Rezervasyon Yapmaya Başla
-              </button>
-            </div>
+            ))}
           </div>
-        )}
+        </div>
 
-        {viewMode !== 'info' && (
-          <>
-            {viewMode === 'student' && selectedSlots.length > 0 && (
-          <div className="mb-3 bg-gray-800 rounded-lg shadow-lg p-3 border border-gray-700">
+        {viewMode === 'student' && selectedSlots.length > 0 && (
+          <div className="mt-3 bg-gray-800 rounded-lg shadow-lg p-3 border border-gray-700">
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="font-semibold text-white text-sm">
@@ -542,32 +342,6 @@ const MathClassScheduler = () => {
             </div>
           </div>
         )}
-
-        <div className="bg-gray-800 rounded-lg shadow-lg p-3 overflow-x-auto border border-gray-700">
-          <div className="min-w-max">
-            <div className="grid grid-cols-8 mb-0.5" style={{gap: '3px'}}>
-              <div className="font-semibold text-gray-300 p-1 text-xs w-12">Saat</div>
-              {weekdays.map(day => (
-                <div key={day} className="font-semibold text-gray-300 p-1 text-center text-xs flex-1">
-                  {day.substring(0, 3)}
-                </div>
-              ))}
-            </div>
-
-            {timeSlots.map(time => (
-              <div key={time} className="grid grid-cols-8 mb-0.5" style={{gap: '3px'}}>
-                <div className="font-medium text-gray-400 p-1 flex items-center text-xs w-12">
-                  {time}
-                </div>
-                {weekdays.map(day => (
-                  <div key={`${day}-${time}`} className="flex-1">
-                    {renderSlot(day, time)}
-                  </div>
-                ))}
-              </div>
-            ))}
-          </div>
-        </div>
 
         <div className="mt-3 bg-gray-800 rounded-lg shadow-lg p-4 border border-gray-700">
           <h2 className="text-lg font-semibold text-white mb-2">Ders Detayları</h2>
@@ -791,83 +565,66 @@ const MathClassScheduler = () => {
           </div>
         </div>
       )}
-
-      {/* Şifre Modal */}
-      {showPasswordModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg shadow-xl p-6 max-w-sm w-full">
-            <h2 className="text-xl font-bold text-gray-800 mb-3 flex items-center gap-2">
-              🔒 Öğretmen Girişi
-            </h2>
-            <p className="text-gray-600 text-sm mb-4">
-              Öğretmen paneline erişmek için lütfen şifrenizi girin.
-            </p>
-            <input
-              type="password"
-              placeholder="Şifre"
-              value={passwordInput}
-              onChange={(e) => setPasswordInput(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && handlePasswordSubmit()}
-              className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg mb-4 focus:outline-none focus:border-indigo-500"
-              autoFocus
-            />
-            <div className="flex gap-3">
-              <button
-                onClick={handlePasswordSubmit}
-                className="flex-1 bg-indigo-600 text-white py-2 px-4 rounded-lg font-semibold hover:bg-indigo-700 transition-all text-sm"
-              >
-                Giriş Yap
-              </button>
-              <button
-                onClick={() => {
-                  setShowPasswordModal(false);
-                  setPasswordInput('');
-                }}
-                className="flex-1 bg-gray-200 text-gray-700 py-2 px-4 rounded-lg font-semibold hover:bg-gray-300 transition-all text-sm"
-              >
-                İptal
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Reset Onay Modal */}
-      {showResetModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg shadow-xl p-6 max-w-sm w-full">
-            <h2 className="text-xl font-bold text-gray-800 mb-3 flex items-center gap-2">
-              ⚠️ Haftalık Reset
-            </h2>
-            <p className="text-gray-700 text-sm mb-2">
-              Tüm slotları sıfırlamak üzeresiniz. Bu işlem:
-            </p>
-            <ul className="text-gray-600 text-sm mb-4 list-disc ml-5 space-y-1">
-              <li>Tüm kapalı slotları müsait yapacak</li>
-              <li><strong className="text-red-600">Gerçek rezervasyonları da silecek!</strong></li>
-            </ul>
-            <p className="text-red-600 font-semibold text-sm mb-4">
-              Bu işlem geri alınamaz. Emin misiniz?
-            </p>
-            <div className="flex gap-3">
-              <button
-                onClick={handleResetSchedule}
-                className="flex-1 bg-red-600 text-white py-2 px-4 rounded-lg font-semibold hover:bg-red-700 transition-all text-sm"
-              >
-                Evet, Sıfırla
-              </button>
-              <button
-                onClick={() => setShowResetModal(false)}
-                className="flex-1 bg-gray-200 text-gray-700 py-2 px-4 rounded-lg font-semibold hover:bg-gray-300 transition-all text-sm"
-              >
-                İptal
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
+
+const [schedule, setSchedule] = useState(() => {
+    const createEmptySchedule = () => {
+      const initial = {};
+      weekdays.forEach(day => {
+        initial[day] = {};
+        timeSlots.forEach(time => {
+          initial[day][time] = { status: 'available', studentName: '' };
+        });
+      });
+      return initial;
+    };
+    
+    const loadSchedule = async () => {
+      try {
+        // Mevcut hafta bilgisini al
+        const currentWeekInfo = getWeekInfo();
+        
+        // Kayıtlı hafta numarasını kontrol et
+        const weekResult = await window.storage.get('current-week', true);
+        const savedWeek = weekResult ? weekResult.value : null;
+        
+        // Eğer yeni hafta başladıysa, schedule'ı sıfırla
+        if (savedWeek !== currentWeekInfo.weekNumber) {
+          console.log('Yeni hafta başladı, schedule sıfırlanıyor...');
+          const emptySchedule = createEmptySchedule();
+          
+          // Yeni hafta numarasını ve boş schedule'ı kaydet
+          await window.storage.set('current-week', currentWeekInfo.weekNumber, true);
+          await window.storage.set('math-schedule', JSON.stringify(emptySchedule), true);
+          
+          return emptySchedule;
+        }
+        
+        // Aynı haftadaysak, kayıtlı schedule'ı yükle
+        const result = await window.storage.get('math-schedule', true);
+        if (result && result.value) {
+          return JSON.parse(result.value);
+        }
+      } catch (error) {
+        console.log('Schedule yüklenirken hata:', error);
+      }
+      
+      return createEmptySchedule();
+    };
+    
+    // İlk başta boş schedule döndür
+    const initial = createEmptySchedule();
+    
+    // Storage'dan asenkron olarak yükle
+    loadSchedule().then(loaded => {
+      if (loaded && JSON.stringify(loaded) !== JSON.stringify(initial)) {
+        setSchedule(loaded);
+      }
+    });
+    
+    return initial;
+  });
 
 export default MathClassScheduler;
