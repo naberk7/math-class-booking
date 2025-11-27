@@ -509,6 +509,17 @@ const toggleSlotAvailability = async (day, time) => {
             >
               👨‍🎓 Öğrenci
             </button>
+	    
+  	    <button
+  		onClick={() => setViewMode('info')}
+  		className={`px-4 py-1.5 rounded-lg font-semibold transition-all text-sm ${
+    			viewMode === 'info'
+      			? 'bg-indigo-600 text-white'
+      			: 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+ 		 }`}
+	   >
+  		ℹ️ Nasıl Çalışır?
+	    </button>
             
             {viewMode === 'admin' && (
               <button
@@ -521,10 +532,12 @@ const toggleSlotAvailability = async (day, time) => {
           </div>
 
           <p className="text-gray-400 mb-3 text-sm">
-            {viewMode === 'admin' 
-              ? 'Slotlara tıklayarak müsait/kapalı durumlarını değiştirin. Rezerve edilmiş slotlara tıklayarak öğrenci bilgilerini görün.' 
-              : 'Birden fazla saat seçmek için müsait slotlara tıklayın, ardından rezervasyon yapın.'}
-          </p>
+  {viewMode === 'admin' 
+    ? 'Slotlara tıklayarak müsait/kapalı durumlarını değiştirin. Rezerve edilmiş slotlara tıklayarak öğrenci bilgilerini görün.' 
+    : viewMode === 'student'
+    ? 'Birden fazla saat seçmek için müsait slotlara tıklayın, ardından rezervasyon yapın.'
+    : 'Matematik soru çözümü hizmeti hakkında bilgiler ve rezervasyon süreci.'}
+	 </p>
           
           <div className="flex gap-4 items-center flex-wrap text-xs">
             <div className="flex items-center gap-1.5">
@@ -585,7 +598,7 @@ const toggleSlotAvailability = async (day, time) => {
             </div>
           </div>
         )}
-
+	{viewMode !== 'info' && (
         <div className="bg-gray-800 rounded-lg shadow-lg p-3 overflow-x-auto border border-gray-700">
           <div className="min-w-max">
             <div className="grid grid-cols-8 mb-0.5" style={{gap: '3px'}}>
@@ -611,7 +624,9 @@ const toggleSlotAvailability = async (day, time) => {
             ))}
           </div>
         </div>
+)} 
 
+	{viewMode !== 'info' && (
         <div className="mt-3 bg-gray-800 rounded-lg shadow-lg p-4 border border-gray-700">
           <h2 className="text-lg font-semibold text-white mb-2">Ders Detayları</h2>
           <div className="text-gray-300 space-y-1 text-sm">
@@ -622,7 +637,7 @@ const toggleSlotAvailability = async (day, time) => {
           </div>
         </div>
       </div>
-
+)}
       {showBookingForm && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-lg shadow-xl p-6 max-w-md w-full max-h-[90vh] overflow-y-auto">
