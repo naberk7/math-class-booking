@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Calendar, Clock, X, Check, User } from 'lucide-react';
+import { supabase } from './supabaseClient';
 
 const MathClassScheduler = () => {
   const weekdays = ['Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi', 'Pazar'];
@@ -25,6 +26,10 @@ const MathClassScheduler = () => {
   const [passwordInput, setPasswordInput] = useState('');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [showResetModal, setShowResetModal] = useState(false);
+// Sayfa yüklenince veritabanından verileri çek
+React.useEffect(() => {
+  loadScheduleFromDatabase();
+}, []);
 
   // Öğretmen şifresi
   const TEACHER_PASSWORD = '776110';
@@ -61,6 +66,62 @@ const MathClassScheduler = () => {
     }
   };
 
+// Veritabanından schedule'ı yükle
+const loadScheduleFromDatabase = async () => {
+  try {
+    // Rezervasyonları çek
+    const { data: bookings, error: bookingsError } = await supabase
+      .from('bookings')
+      .select('*');
+    
+    if (bookingsError) throw bookingsError;
+
+    // Kapalı slotları çek
+    const { data: slotStatuses, error: statusError } = await supabase
+      .from('slot_status')
+      .select('*');
+    
+    if (statusError) throw statusError;
+
+    // Yeni schedule oluştur
+    const newSchedule = {};
+    weekdays.forEach(day => {
+      newSchedule[day] = {};
+      timeSlots.forEach(time => {
+        newSchedule[day][time] = { status: 'available', studentName: '' };
+      });
+    });
+
+    // Rezervasyonları ekle
+    bookings?.forEach(booking => {
+      if (newSchedule[booking.day] && newSchedule[booking.day][booking.time]) {
+        newSchedule[booking.day][booking.time] = {
+          status: 'booked',
+          studentName: booking.student_name,
+          studentEmail: booking.student_email,
+          studentPhone: booking.student_phone,
+          zoomLink: booking.zoom_link,
+          meetingId: booking.meeting_id,
+          meetingPassword: booking.meeting_password
+        };
+      }
+    });
+
+    // Kapalı slotları ekle
+    slotStatuses?.forEach(slot => {
+      if (newSchedule[slot.day] && newSchedule[slot.day][slot.time]) {
+        if (newSchedule[slot.day][slot.time].status !== 'booked') {
+          newSchedule[slot.day][slot.time].status = slot.status;
+        }
+      }
+    });
+
+    setSchedule(newSchedule);
+  } catch (error) {
+    console.error('Veritabanından yükleme hatası:', error);
+  }
+};
+
   const [schedule, setSchedule] = useState(() => {
     const initial = {};
     weekdays.forEach(day => {
@@ -92,33 +153,55 @@ const MathClassScheduler = () => {
     }
   };
 
-  const toggleSlotAvailability = (day, time) => {
-    setSchedule(prev => {
-      const currentStatus = prev[day][time].status;
-      let newStatus;
+const toggleSlotAvailability = async (day, time) => {
+  const currentStatus = schedule[day][time].status;
+  let newStatus;
+  
+  // 2 durum döngüsü: available ↔ blocked
+  if (currentStatus === 'available') {
+    newStatus = 'blocked';
+  } else if (currentStatus === 'blocked') {
+    newStatus = 'available';
+  } else {
+    // booked ise değiştirme
+    return;
+  }
+  
+  // Veritabanını güncelle
+  try {
+    if (newStatus === 'blocked') {
+      // Veritabanına ekle
+      const { error } = await supabase
+        .from('slot_status')
+        .upsert({ day, time, status: 'blocked' }, { onConflict: 'day,time' });
       
-      // 2 durum döngüsü: available ↔ blocked
-      if (currentStatus === 'available') {
-        newStatus = 'blocked';
-      } else if (currentStatus === 'blocked') {
-        newStatus = 'available';
-      } else {
-        // booked ise değiştirme
-        return prev;
-      }
+      if (error) throw error;
+    } else {
+      // Veritabanından sil (müsait yap)
+      const { error } = await supabase
+        .from('slot_status')
+        .delete()
+        .match({ day, time });
       
-      return {
-        ...prev,
-        [day]: {
-          ...prev[day],
-          [time]: {
-            ...prev[day][time],
-            status: newStatus
-          }
+      if (error) throw error;
+    }
+    
+    // Yerel state'i güncelle
+    setSchedule(prev => ({
+      ...prev,
+      [day]: {
+        ...prev[day],
+        [time]: {
+          ...prev[day][time],
+          status: newStatus
         }
-      };
-    });
-  };
+      }
+    }));
+  } catch (error) {
+    console.error('Slot durumu güncellenemedi:', error);
+    alert('Slot durumu güncellenemedi. Lütfen tekrar deneyin.');
+  }
+};
 
   const viewStudentInfo = (day, time) => {
     const slot = schedule[day][time];
@@ -132,7 +215,25 @@ const MathClassScheduler = () => {
     }
   };
 
-  const handleResetSchedule = () => {
+  const handleResetSchedule = async () => {
+  try {
+    // Tüm rezervasyonları sil
+    const { error: bookingsError } = await supabase
+      .from('bookings')
+      .delete()
+      .neq('id', 0); // Tüm satırları sil
+    
+    if (bookingsError) throw bookingsError;
+
+    // Tüm slot durumlarını sil
+    const { error: statusError } = await supabase
+      .from('slot_status')
+      .delete()
+      .neq('id', 0); // Tüm satırları sil
+    
+    if (statusError) throw statusError;
+
+    // Yerel state'i sıfırla
     const initial = {};
     weekdays.forEach(day => {
       initial[day] = {};
@@ -142,7 +243,13 @@ const MathClassScheduler = () => {
     });
     setSchedule(initial);
     setShowResetModal(false);
-  };
+    
+    alert('Tüm haftalık veriler başarıyla sıfırlandı!');
+  } catch (error) {
+    console.error('Reset hatası:', error);
+    alert('Reset işlemi başarısız oldu. Lütfen tekrar deneyin.');
+  }
+};
 
   const handleBookSlot = (day, time) => {
     const slotKey = `${day}-${time}`;
@@ -166,21 +273,41 @@ const MathClassScheduler = () => {
   };
 
   const confirmBooking = async () => {
-    if (selectedSlots.length > 0 && studentName.trim() && studentEmail.trim()) {
-      const slotsWithMeetings = await Promise.all(
-        selectedSlots.map(async ({ day, time, key }) => {
-          const zoomInfo = await generateZoomMeeting(day, time, studentName.trim());
-          return { day, time, key, zoomInfo };
-        })
-      );
+  if (selectedSlots.length > 0 && studentName.trim() && studentEmail.trim()) {
+    const slotsWithMeetings = await Promise.all(
+      selectedSlots.map(async ({ day, time, key }) => {
+        const zoomInfo = await generateZoomMeeting(day, time, studentName.trim());
+        return { day, time, key, zoomInfo };
+      })
+    );
 
-      const bookingData = {
-        slots: slotsWithMeetings,
-        studentName: studentName.trim(),
-        studentEmail: studentEmail.trim(),
-        studentPhone: studentPhone.trim()
-      };
+    const bookingData = {
+      slots: slotsWithMeetings,
+      studentName: studentName.trim(),
+      studentEmail: studentEmail.trim(),
+      studentPhone: studentPhone.trim()
+    };
+    
+    // Veritabanına kaydet
+    try {
+      for (const slot of slotsWithMeetings) {
+        const { error } = await supabase
+          .from('bookings')
+          .insert({
+            student_name: bookingData.studentName,
+            student_email: bookingData.studentEmail,
+            student_phone: bookingData.studentPhone,
+            day: slot.day,
+            time: slot.time,
+            zoom_link: slot.zoomInfo.joinUrl,
+            meeting_id: slot.zoomInfo.meetingId,
+            meeting_password: slot.zoomInfo.password
+          });
+        
+        if (error) throw error;
+      }
       
+      // Yerel state'i güncelle
       setSchedule(prev => {
         const newSchedule = { ...prev };
         slotsWithMeetings.forEach(({ day, time, zoomInfo }) => {
@@ -209,8 +336,12 @@ const MathClassScheduler = () => {
       setStudentEmail('');
       setStudentPhone('');
       setSelectedSlots([]);
+    } catch (error) {
+      console.error('Rezervasyon kaydedilemedi:', error);
+      alert('Rezervasyon kaydedilemedi. Lütfen tekrar deneyin.');
     }
-  };
+  }
+};
 
   const sendConfirmationEmail = (bookingData) => {
     console.log('Onay e-postası gönderiliyor:', bookingData.studentEmail);
