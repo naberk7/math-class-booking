@@ -658,9 +658,13 @@ const toggleSlotAvailability = async (day, time) => {
 	 Çünkü bana ulaştırdığı PDF dosyası ile, hemen tabletten ekran paylaşarak soruları çözmeye başlıyorum. Bu sayede hiç zaman kaybetmeden soru çözmeye başlıyoruz, seansın başladığı ilk 10 dakikada öğrenci ücreti gönderiyor ve seans 45 dakika olacak şekilde sürüyor.	
         </p>
         <p className="text-gray-300 text-sm leading-relaxed">
-          • CV'me ulaşabilirsiniz.<br/>
+          • CV'me sayfanın üstündeki linkten ulaşabilirsiniz.<br/>
           • Güven esastır, bu yüzden ödeme seans başladıktan bir süre sonra alınacaktır.<br/>
+          • Seans başlamadan PDF'in hazırlanmış olması zorunludur.<br/>
+          • Her seans 45 dakikadır ve ücreti 500 TLdir.<br/>
+          • Ödemeler banka havalesi veya EFT ile yapılabilir.<br/>
           • Ödeme seans başladıktan sonraki ilk 10 dakika içinde tahsil edilmezse, maalesef ki sonlandırılacaktır.
+
         </p>
       </div>
     </div>
