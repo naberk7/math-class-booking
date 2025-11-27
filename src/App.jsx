@@ -642,7 +642,7 @@ const toggleSlotAvailability = async (day, time) => {
 
 {/* Nasıl Çalışır Sayfası */}
 {viewMode === 'info' && (
-  <div className="space-y-4">
+  <div className="space-y-4 max-w-7xl mx-auto">
     {/* Hakkımda Bölümü */}
     <div className="bg-gray-800 rounded-lg shadow-lg p-6 border border-gray-700">
       <h2 className="text-2xl font-bold text-white mb-4 flex items-center gap-2">
@@ -658,9 +658,9 @@ const toggleSlotAvailability = async (day, time) => {
 	 Çünkü bana ulaştırdığı PDF dosyası ile, hemen tabletten ekran paylaşarak soruları çözmeye başlıyorum. Bu sayede hiç zaman kaybetmeden soru çözmeye başlıyoruz, seansın başladığı ilk 10 dakikada öğrenci ücreti gönderiyor ve seans 45 dakika olacak şekilde sürüyor.	
         </p>
         <p className="text-gray-300 text-sm leading-relaxed">
-          • [CV'me ulaşabilirsiniz.]<br/>
-          • [Güven esastır, bu yüzden ödeme seans başladıktan bir süre sonra alınacaktır.]<br/>
-          • [Ödeme seans başladıktan sonraki ilk 10 dakika içinde tahsil edilmezse, maalesef ki sonlandırılacaktır.]
+          • CV'me ulaşabilirsiniz.<br/>
+          • Güven esastır, bu yüzden ödeme seans başladıktan bir süre sonra alınacaktır.<br/>
+          • Ödeme seans başladıktan sonraki ilk 10 dakika içinde tahsil edilmezse, maalesef ki sonlandırılacaktır.
         </p>
       </div>
     </div>
