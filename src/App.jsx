@@ -27,9 +27,45 @@ const MathClassScheduler = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [showResetModal, setShowResetModal] = useState(false);
 // Sayfa yüklenince veritabanından verileri çek
+// Sayfa yüklenince veritabanından verileri çek ve hafta kontrolü yap
 React.useEffect(() => {
-  loadScheduleFromDatabase();
+  checkAndResetWeek();
 }, []);
+
+// Hafta değişti mi kontrol et ve gerekirse sıfırla
+const checkAndResetWeek = async () => {
+  const today = new Date();
+  const lastResetDate = localStorage.getItem('lastResetDate');
+  
+  // Haftanın ilk günü (Pazartesi) hesapla
+  const dayOfWeek = today.getDay();
+  const monday = new Date(today);
+  monday.setDate(today.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1));
+  monday.setHours(0, 0, 0, 0);
+  
+  const mondayString = monday.toISOString().split('T')[0];
+  
+  // Eğer yeni bir hafta başladıysa ve daha sıfırlanmadıysa
+  if (lastResetDate !== mondayString) {
+    console.log('Yeni hafta başladı, slotlar sıfırlanıyor...');
+    
+    try {
+      // Veritabanını temizle
+      await supabase.from('bookings').delete().neq('id', 0);
+      await supabase.from('slot_status').delete().neq('id', 0);
+      
+      // Son reset tarihini kaydet
+      localStorage.setItem('lastResetDate', mondayString);
+      
+      console.log('Haftalık reset başarılı!');
+    } catch (error) {
+      console.error('Otomatik reset hatası:', error);
+    }
+  }
+  
+  // Normal yüklemeye devam et
+  await loadScheduleFromDatabase();
+};
 
   // Öğretmen şifresi
   const TEACHER_PASSWORD = '776110';
