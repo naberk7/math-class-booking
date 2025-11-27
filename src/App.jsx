@@ -636,7 +636,7 @@ const toggleSlotAvailability = async (day, time) => {
             <p>• Çalışma Saatleri: <strong>08:00 - 22:00</strong></p>
           </div>
         </div>
-      </div>
+    
 )}
 
 {/* Nasıl Çalışır Sayfası */}
