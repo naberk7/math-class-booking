@@ -638,6 +638,34 @@ const toggleSlotAvailability = async (day, time) => {
         </div>
       </div>
 )}
+
+{/* Nasıl Çalışır Sayfası */}
+{viewMode === 'info' && (
+  <div className="space-y-4">
+    {/* Hakkımda Bölümü */}
+    <div className="bg-gray-800 rounded-lg shadow-lg p-6 border border-gray-700">
+      <h2 className="text-2xl font-bold text-white mb-4 flex items-center gap-2">
+        <User className="w-6 h-6 text-indigo-400" />
+        Hakkımda
+      </h2>
+      <div className="bg-gray-700 rounded-lg p-4 mb-4">
+        <p className="text-gray-300 text-sm leading-relaxed mb-3">
+          Merhaba! Ben Berkay Ediş, İstanbul Teknik Üniversitesi Endüstri Mühendisliği mezunuyum. Şu anda İstanbul Teknik Üniversitesi'nde Ses Mühendisliği yüksek lisans programında ve ayrıca İstanbul Bilgi Üniversitesi'nde Dijital Oyun Tasarımı bölümünde öğrenim görmeye devam ediyorum. Matematiği çok severim, soru çözmeye bayılırım ve özellikle soruyu kodlarına ayırmak, soruya nasıl yaklaşılacağını saptamak, doğru okumak ve ne sorulduğunu anlamak, farklı çözüm yolları bulmak bana keyif veriyor ve bu konuda kötü olmadığımı düşünüyorum. 2014 yılında üniversite hayatım başladığından beri bazen kısa bazen uzun aralıklarla da olsa hep öğrencilerim oldu. Hala da devam ediyor, başka bir işim olsa bile matematik çözmek ve öğretmek bana onur veriyor. Bu yüzden de böyle bir sistem kurmak istedim.   
+          Öğrencilere birebir online soru çözümü ve matematik desteği sağlıyorum.
+	  Bu site yardımı ile haftalık uygun slotlara randevu oluşturduğunuzda benim onayıma düşüyor, ben onaylayınca ise görüşme için Zoom linkleri otomatik olarak iki tarafla da paylaşılıyor. Gün ve saat geldiğinde ise Zoom'da buluşuyoruz. 
+	 Bu noktada öğrencinin soracağı soruları bir PDF dosyasında toplamış olması çok önemli.
+	 Çünkü bana ulaştırdığı PDF dosyası ile, hemen tabletten ekran paylaşarak soruları çözmeye başlıyorum. Bu sayede hiç zaman kaybetmeden soru çözmeye başlıyoruz, seansın başladığı ilk 10 dakikada öğrenci ücreti gönderiyor ve seans 45 dakika olacak şekilde sürüyor.	
+        </p>
+        <p className="text-gray-300 text-sm leading-relaxed">
+          • [CV'me ulaşabilirsiniz.]<br/>
+          • [Güven esastır, bu yüzden ödeme seans başladıktan bir süre sonra alınacaktır.]<br/>
+          • [Ödeme seans başladıktan sonraki ilk 10 dakika içinde tahsil edilmezse, maalesef ki sonlandırılacaktır.]
+        </p>
+      </div>
+    </div>
+  </div>
+)}
+
       {showBookingForm && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-lg shadow-xl p-6 max-w-md w-full max-h-[90vh] overflow-y-auto">
