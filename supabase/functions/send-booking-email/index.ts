@@ -5,7 +5,17 @@
 // Setup type definitions for built-in Supabase Runtime APIs
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+}
+
 serve(async (req) => {
+  // OPTIONS request için hızlı yanıt
+  if (req.method === 'OPTIONS') {
+    return new Response('ok', { headers: corsHeaders })
+  }
+
   try {
     const { to, studentName, bookings } = await req.json()
 
@@ -54,7 +64,7 @@ serve(async (req) => {
       },
       body: JSON.stringify({
         from: 'Matematik Dersi <onboarding@resend.dev>',
-        to: [to, Deno.env.get('TEACHER_EMAIL')], // Hem öğrenciye hem öğretmene
+        to: [to, Deno.env.get('TEACHER_EMAIL')],
         subject: `Ders Rezervasyonu Onayı - ${studentName}`,
         html: emailHtml,
       }),
@@ -64,12 +74,12 @@ serve(async (req) => {
 
     return new Response(
       JSON.stringify(data),
-      { headers: { "Content-Type": "application/json" } }
+      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     )
   } catch (error) {
     return new Response(
       JSON.stringify({ error: error.message }),
-      { status: 500, headers: { "Content-Type": "application/json" } }
+      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     )
   }
 })
