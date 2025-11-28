@@ -191,25 +191,7 @@ const loadScheduleFromDatabase = async () => {
     alert('Yanlış şifre! Lütfen tekrar deneyin.');
     setPasswordInput('');
   }
-};
-
-    const data = await response.json();
-
-    if (data.valid) {
-      setIsAuthenticated(true);
-      setViewMode('admin');
-      setShowPasswordModal(false);
-      setPasswordInput('');
-    } else {
-      alert('Yanlış şifre! Lütfen tekrar deneyin.');
-      setPasswordInput('');
-    }
-  } catch (error) {
-    console.error('Şifre doğrulama hatası:', error);
-    alert('Bir hata oluştu. Lütfen tekrar deneyin.');
-    setPasswordInput('');
-  }
-};
+  };
 
 const toggleSlotAvailability = async (day, time) => {
   const currentStatus = schedule[day][time].status;
