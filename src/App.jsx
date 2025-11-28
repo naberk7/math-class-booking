@@ -379,20 +379,69 @@ const toggleSlotAvailability = async (day, time) => {
   }
 };
 
-  const sendConfirmationEmail = (bookingData) => {
-    console.log('Onay e-postası gönderiliyor:', bookingData.studentEmail);
-    console.log('Rezervasyon detayları:', bookingData);
-  };
+  const sendConfirmationEmail = async (bookingData) => {
+  try {
+    const bookings = bookingData.slots.map(slot => ({
+      day: slot.day,
+      time: slot.time,
+      zoomLink: slot.zoomInfo.joinUrl,
+      meetingId: slot.zoomInfo.meetingId,
+      password: slot.zoomInfo.password
+    }));
 
-  const generateZoomMeeting = async (day, time, studentName) => {
-    const meetingId = Math.floor(100000000 + Math.random() * 900000000);
-    const password = Math.random().toString(36).substring(2, 8).toUpperCase();
+    const emailResponse = await fetch('https://edxnltxzalqudizbxocf.supabase.co/functions/v1/send-booking-email', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        to: bookingData.studentEmail,
+        studentName: bookingData.studentName,
+        bookings: bookings
+      })
+    });
+
+    if (!emailResponse.ok) {
+      console.error('E-posta gönderilemedi');
+    } else {
+      console.log('E-posta başarıyla gönderildi!');
+    }
+  } catch (error) {
+    console.error('E-posta gönderme hatası:', error);
+  }
+};
+
+const generateZoomMeeting = async (day, time, studentName) => {
+  try {
+    const zoomResponse = await fetch('https://edxnltxzalqudizbxocf.supabase.co/functions/v1/create-zoom-meeting', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        topic: `Matematik Dersi - ${studentName}`,
+        start_time: getZoomDateTime(day, time),
+        duration: 45,
+        timezone: 'Europe/Istanbul'
+      })
+    });
+
+    if (!zoomResponse.ok) {
+      throw new Error('Zoom toplantısı oluşturulamadı');
+    }
+
+    const zoomData = await zoomResponse.json();
+    
     return {
-      joinUrl: `https://zoom.us/j/${meetingId}?pwd=${password}`,
-      meetingId: meetingId.toString(),
-      password: password
+      joinUrl: zoomData.join_url,
+      meetingId: zoomData.id.toString(),
+      password: zoomData.password
     };
-  };
+  } catch (error) {
+    console.error('Zoom meeting oluşturma hatası:', error);
+    throw error;
+  }
+};
 
   const getSlotColor = (status, isSelected = false) => {
     if (isSelected) {
@@ -683,6 +732,7 @@ const toggleSlotAvailability = async (day, time) => {
       </div>
     </div>
   </div>
+        
 )}
 
       {showBookingForm && (
