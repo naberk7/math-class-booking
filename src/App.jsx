@@ -182,6 +182,7 @@ const loadScheduleFromDatabase = async () => {
   };
 
   const handlePasswordSubmit = () => {
+    console.log('Fonksiyon çalıştı!', passwordInput);
   if (passwordInput === TEACHER_PASSWORD) {
     setIsAuthenticated(true);
     setViewMode('admin');
