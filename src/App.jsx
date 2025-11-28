@@ -428,37 +428,40 @@ const toggleSlotAvailability = async (day, time) => {
 // Geçmiş bir slot mu kontrol et
 const isPastSlot = (day, time) => {
   const now = new Date();
-  const currentDayJS = now.getDay(); // 0=Pazar, 1=Pazartesi, 2=Salı, ... 6=Cumartesi
+  const currentDayJS = now.getDay();
   const currentHour = now.getHours();
   const currentMinute = now.getMinutes();
   
   const weekdays = ['Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi', 'Pazar'];
-  const slotDayIndex = weekdays.indexOf(day); // 0=Pazartesi, 1=Salı, ... 6=Pazar
+  const slotDayIndex = weekdays.indexOf(day);
   
-  // JavaScript formatına çevir: 0=Pazar, 1=Pazartesi
-  // Bizim format: 0=Pazartesi, 1=Salı, ... 6=Pazar
   let currentDayConverted;
   if (currentDayJS === 0) {
-    currentDayConverted = 6; // Pazar
+    currentDayConverted = 6;
   } else {
-    currentDayConverted = currentDayJS - 1; // Pazartesi=0, Salı=1, ...
+    currentDayConverted = currentDayJS - 1;
   }
   
-  // Eğer slot günü bugünden önceyse
+  console.log('🔍 Debug:', {
+    day,
+    time,
+    slotDayIndex,
+    currentDayConverted,
+    currentHour,
+    'Geçmiş mi?': slotDayIndex < currentDayConverted
+  });
+  
   if (slotDayIndex < currentDayConverted) return true;
   
-  // Eğer bugünse, saate bak
-  if (slotDayIndex === currentDayConverted) {
+    if (slotDayIndex === currentDayConverted) {
     const [slotHour, slotMinute] = time.split(':').map(Number);
     const currentTimeInMinutes = currentHour * 60 + currentMinute;
     const slotTimeInMinutes = slotHour * 60 + slotMinute;
     
-    // Geçmiş saat mi?
-    return slotTimeInMinutes < currentTimeInMinutes;
+      return slotTimeInMinutes < currentTimeInMinutes;
   }
   
-  // Gelecek gün
-  return false;
+      return false;
 };
 
 // Zoom için tarih/saat formatını oluştur
