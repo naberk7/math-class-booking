@@ -72,7 +72,7 @@ const checkAndResetWeek = async () => {
 };
 
   // Öğretmen şifresi
-  const TEACHER_PASSWORD = '776110';
+  
 
   // Haftanın tarih aralığını hesapla
   const getWeekRange = () => {
@@ -181,15 +181,32 @@ const loadScheduleFromDatabase = async () => {
     }
   };
 
-  const handlePasswordSubmit = () => {
-    console.log('Fonksiyon çalıştı!', passwordInput);
-  if (passwordInput === TEACHER_PASSWORD) {
-    setIsAuthenticated(true);
-    setViewMode('admin');
-    setShowPasswordModal(false);
-    setPasswordInput('');
-  } else {
-    alert('Yanlış şifre! Lütfen tekrar deneyin.');
+  const handlePasswordSubmit = async () => {
+  try {
+    const response = await fetch('https://edxnltxzalqudizbxocf.supabase.co/functions/v1/verify-teacher-password', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        password: passwordInput
+      })
+    });
+
+    const data = await response.json();
+
+    if (data.valid) {
+      setIsAuthenticated(true);
+      setViewMode('admin');
+      setShowPasswordModal(false);
+      setPasswordInput('');
+    } else {
+      alert('Yanlış şifre! Lütfen tekrar deneyin.');
+      setPasswordInput('');
+    }
+  } catch (error) {
+    console.error('Şifre doğrulama hatası:', error);
+    alert('Bir hata oluştu. Lütfen tekrar deneyin.');
     setPasswordInput('');
   }
 };
