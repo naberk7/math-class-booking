@@ -292,6 +292,7 @@ const toggleSlotAvailability = async (day, time) => {
 };
 
   const handleBookSlot = (day, time) => {
+    if (isPastSlot(day, time)) return;
     const slotKey = `${day}-${time}`;
     const isSelected = selectedSlots.some(slot => slot.key === slotKey);
     
@@ -423,6 +424,34 @@ const toggleSlotAvailability = async (day, time) => {
   }
 };
 
+// Geçmiş bir slot mu kontrol et
+const isPastSlot = (day, time) => {
+  const now = new Date();
+  const currentDay = now.getDay(); // 0=Pazar, 1=Pazartesi, ...
+  const currentHour = now.getHours();
+  const currentMinute = now.getMinutes();
+  
+  const weekdays = ['Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi', 'Pazar'];
+  const dayIndex = weekdays.indexOf(day);
+  
+  // Pazar=0, Pazartesi=1 formatına çevir
+  const slotDayIndex = dayIndex === 6 ? 0 : dayIndex + 1;
+  
+  // Eğer slot günü bugünden önceyse, geçmiştir
+  if (slotDayIndex < currentDay) return true;
+  
+  // Eğer aynı günse, saate bak
+  if (slotDayIndex === currentDay) {
+    const [slotHour, slotMinute] = time.split(':').map(Number);
+    const currentTimeInMinutes = currentHour * 60 + currentMinute;
+    const slotTimeInMinutes = slotHour * 60 + slotMinute;
+    
+    return slotTimeInMinutes <= currentTimeInMinutes;
+  }
+  
+  return false;
+};
+
 // Zoom için tarih/saat formatını oluştur
 const getZoomDateTime = (day, time) => {
   const today = new Date();
@@ -505,7 +534,12 @@ const generateZoomMeeting = async (day, time, studentName) => {
 
   const renderSlot = (day, time) => {
     const slot = schedule[day][time];
-    
+    return (
+      <div className="w-full p-1.5 border rounded flex items-center justify-center h-10 text-xs bg-gray-100 border-gray-200 text-gray-400 cursor-not-allowed">
+        <Clock className="w-4 h-4 text-gray-400" />
+      </div>
+    );
+  
     if (viewMode === 'admin') {
       return (
         <button
