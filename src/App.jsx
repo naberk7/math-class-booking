@@ -72,7 +72,7 @@ const checkAndResetWeek = async () => {
 };
 
   // Öğretmen şifresi
-  const TEACHER_PASSWORD_HASH = '776110';
+  const TEACHER_PASSWORD = '776110';
 
   // Haftanın tarih aralığını hesapla
   const getWeekRange = () => {
