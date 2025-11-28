@@ -11,15 +11,22 @@ const corsHeaders = {
 }
 
 serve(async (req) => {
-  // OPTIONS request için hızlı yanıt
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
   }
 
   try {
+    console.log('=== Mail fonksiyonu başladı ===')
+    
     const { to, studentName, bookings } = await req.json()
+    console.log('Gelen data:', { to, studentName, bookingsCount: bookings.length })
 
-    // Email içeriğini hazırla
+    const resendApiKey = Deno.env.get('RESEND_API_KEY')
+    const teacherEmail = Deno.env.get('TEACHER_EMAIL')
+    
+    console.log('API Key var mı:', !!resendApiKey)
+    console.log('Teacher email:', teacherEmail)
+
     let bookingsList = ''
     bookings.forEach((booking: any) => {
       bookingsList += `
@@ -46,37 +53,51 @@ serve(async (req) => {
           <ul style="margin: 10px 0;">
             <li>Her ders 45 dakika sürecektir</li>
             <li>Ders saatinden 5 dakika önce Zoom linkine tıklayarak bekleme odasına girebilirsiniz</li>
-            <li>Herhangi bir sorunuz olursa lütfen yanıt verin</li>
+            <li>Seans başlamadan önce sorularınızın bulunduğu PDF dosyası hazır olmalıdır!</li>
           </ul>
         </div>
         
-        <p>İyi dersler dilerim! 📚</p>
-        <p style="color: #6b7280; font-size: 14px;">Matematik Dersi Randevu Sistemi</p>
+        <p>Görüşmek üzere!📚 Ücret seans sırasında tahsil edilecektir.</p>
+        <p>Başka bir randevu oluşturmak için randevu.berkayedis.com'u ziyaret edebilirsin!</p>
+        <p style="color: #6b7280; font-size: 14px;">Berkay Ediş</p>
       </div>
     `
 
-    // Resend API ile mail gönder
+    console.log('Resend API çağrısı yapılıyor...')
+    
     const response = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${Deno.env.get('RESEND_API_KEY')}`,
+        'Authorization': `Bearer ${resendApiKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from: 'Matematik Dersi <onboarding@resend.dev>',
-        to: [to, Deno.env.get('TEACHER_EMAIL')],
+        from: 'Matematik Dersi <info@berkayedis.com>',
+        to: [to, teacherEmail],  // Artık herkese gönderebiliriz!
         subject: `Ders Rezervasyonu Onayı - ${studentName}`,
         html: emailHtml,
       }),
     })
 
+    console.log('Resend status:', response.status)
+    console.log('Resend status text:', response.statusText)
+    
     const data = await response.json()
+    console.log('Resend response:', JSON.stringify(data))
+
+    if (!response.ok) {
+      console.error('Resend hatası:', data)
+      throw new Error(`Resend API error: ${JSON.stringify(data)}`)
+    }
+
+    console.log('=== Mail başarıyla gönderildi ===')
 
     return new Response(
-      JSON.stringify(data),
+      JSON.stringify({ success: true, data }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     )
   } catch (error) {
+    console.error('=== HATA ===', error.message)
     return new Response(
       JSON.stringify({ error: error.message }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
