@@ -5,7 +5,7 @@ import { supabase } from './supabaseClient';
 
 
 const MathClassScheduler = () => {
-  const [isBooking, setIsBooking] = useState(false);
+
   const weekdays = ['Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi', 'Pazar'];
   const timeSlots = [
     '08:00', '09:00', '10:00', '11:00', 
@@ -29,6 +29,7 @@ const MathClassScheduler = () => {
   const [passwordInput, setPasswordInput] = useState('');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [showResetModal, setShowResetModal] = useState(false);
+  const [isBooking, setIsBooking] = useState(false);
 // Sayfa yüklenince veritabanından verileri çek
 // Sayfa yüklenince veritabanından verileri çek ve hafta kontrolü yap
 React.useEffect(() => {
