@@ -642,7 +642,21 @@ const toggleSlotAvailability = async (day, time) => {
 
 {/* Nasıl Çalışır Sayfası */}
 {viewMode === 'info' && (
+  /* Süreç Akış Şeması */
   <div className="space-y-4 max-w-7xl mx-auto">
+    <div className="bg-gray-800 rounded-lg shadow-lg p-6 border border-gray-700">
+      <h2 className="text-2xl font-bold text-white mb-4 flex items-center gap-2">
+        <Calendar className="w-6 h-6 text-indigo-400" />
+        Rezervasyon Süreci
+      </h2>
+      <div className="bg-gray-700 rounded-lg p-4">
+        <img 
+          src="/process-chart.png" 
+          alt="Rezervasyon Süreci Akış Şeması" 
+          className="w-full rounded-lg"
+        />
+      </div>
+    </div>
     {/* Hakkımda Bölümü */}
     <div className="bg-gray-800 rounded-lg shadow-lg p-6 border border-gray-700">
       <h2 className="text-2xl font-bold text-white mb-4 flex items-center gap-2">
