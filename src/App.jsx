@@ -188,6 +188,10 @@ const loadScheduleFromDatabase = async () => {
   const hashBuffer = await crypto.subtle.digest('SHA-256', data);
   const hashArray = Array.from(new Uint8Array(hashBuffer));
   const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+
+  console.log('Girilen şifre hash:', hashHex); // ← EKLE
+  console.log('Beklenen hash:', TEACHER_PASSWORD_HASH); // ← EKLE
+  console.log('Eşit mi?', hashHex === TEACHER_PASSWORD_HASH); 
   
   if (hashHex === TEACHER_PASSWORD_HASH) {
     setIsAuthenticated(true);
