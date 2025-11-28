@@ -181,17 +181,17 @@ const loadScheduleFromDatabase = async () => {
     }
   };
 
-  const handlePasswordSubmit = async () => {
-  try {
-    const response = await fetch('https://edxnltxzalqudizbxocf.supabase.co/functions/v1/verify-teacher-password', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        password: passwordInput
-      })
-    });
+  const handlePasswordSubmit = () => {
+  if (passwordInput === '776110') {
+    setIsAuthenticated(true);
+    setViewMode('admin');
+    setShowPasswordModal(false);
+    setPasswordInput('');
+  } else {
+    alert('Yanlış şifre! Lütfen tekrar deneyin.');
+    setPasswordInput('');
+  }
+};
 
     const data = await response.json();
 
