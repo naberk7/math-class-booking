@@ -2,9 +2,10 @@ import React, { useState } from 'react';
 import { Calendar, Clock, X, Check, User } from 'lucide-react';
 import { supabase } from './supabaseClient';
 
-const [isBooking, setIsBooking] = useState(false);
+
 
 const MathClassScheduler = () => {
+  const [isBooking, setIsBooking] = useState(false);
   const weekdays = ['Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi', 'Pazar'];
   const timeSlots = [
     '08:00', '09:00', '10:00', '11:00', 
