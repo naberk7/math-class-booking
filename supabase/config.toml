@@ -23,7 +23,7 @@ entrypoint = "./functions/send-booking-email/index.ts"
 
 [functions.verify-teacher-password]
 enabled = true
-verify_jwt = true
+verify_jwt = false
 import_map = "./functions/verify-teacher-password/deno.json"
 # Uncomment to specify a custom file path to the entrypoint.
 # Supported file extensions are: .ts, .js, .mjs, .jsx, .tsx
