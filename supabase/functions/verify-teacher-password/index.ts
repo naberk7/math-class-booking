@@ -18,6 +18,7 @@ serve(async (req) => {
 
   try {
     const { password } = await req.json()
+    console.log('Gelen şifre:', password) // Log the received password for debugging
 
     // Şifreyi hash'le
     const encoder = new TextEncoder()
@@ -25,6 +26,8 @@ serve(async (req) => {
     const hashBuffer = await crypto.subtle.digest('SHA-256', data)
     const hashArray = Array.from(new Uint8Array(hashBuffer))
     const passwordHash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('')
+
+    console.log('Hesaplanan hash:', passwordHash)
 
     // Supabase client oluştur
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!
@@ -37,6 +40,8 @@ serve(async (req) => {
       .select('password_hash')
       .eq('password_hash', passwordHash)
       .single()
+
+      console.log('DB sonucu:', { authData, error })
 
     if (error || !authData) {
       return new Response(
