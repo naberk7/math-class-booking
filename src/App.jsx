@@ -72,7 +72,7 @@ const checkAndResetWeek = async () => {
 };
 
   // Öğretmen şifresi
-  const TEACHER_PASSWORD_HASH = '876b98728ea17513b6fdb91451b8128b44b60690ac682e0dc448d7da134b104fR'; // Terminal'den gelen hash
+  const TEACHER_PASSWORD_HASH = '776110';
 
   // Haftanın tarih aralığını hesapla
   const getWeekRange = () => {
@@ -181,19 +181,8 @@ const loadScheduleFromDatabase = async () => {
     }
   };
 
-  const handlePasswordSubmit = async () => {
-  // Girilen şifreyi hash'le
-  const encoder = new TextEncoder();
-  const data = encoder.encode(passwordInput);
-  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-
-  console.log('Girilen şifre hash:', hashHex); // ← EKLE
-  console.log('Beklenen hash:', TEACHER_PASSWORD_HASH); // ← EKLE
-  console.log('Eşit mi?', hashHex === TEACHER_PASSWORD_HASH); 
-  
-  if (hashHex === TEACHER_PASSWORD_HASH) {
+  const handlePasswordSubmit = () => {
+  if (passwordInput === TEACHER_PASSWORD) {
     setIsAuthenticated(true);
     setViewMode('admin');
     setShowPasswordModal(false);
