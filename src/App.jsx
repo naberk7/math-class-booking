@@ -309,7 +309,13 @@ const toggleSlotAvailability = async (day, time) => {
   };
 
   const confirmBooking = async () => {
+  console.log('Onaylandı!'); // ← EKLE
+  console.log('selectedSlots:', selectedSlots); // ← EKLE
+  console.log('studentName:', studentName); // ← EKLE
+  console.log('studentEmail:', studentEmail); // ← EKLE
+  
   if (selectedSlots.length > 0 && studentName.trim() && studentEmail.trim()) {
+    console.log('IF içine girdi!'); // ← EKLE
     const slotsWithMeetings = await Promise.all(
       selectedSlots.map(async ({ day, time, key }) => {
         const zoomInfo = await generateZoomMeeting(day, time, studentName.trim());
