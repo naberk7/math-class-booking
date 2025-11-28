@@ -545,58 +545,60 @@ const generateZoomMeeting = async (day, time, studentName) => {
   };
 
   const renderSlot = (day, time) => {
-    const slot = schedule[day][time];
+  const slot = schedule[day][time];
+  
+  // Geçmiş slot kontrolü
+  if (isPastSlot(day, time)) {
     return (
       <div className="w-full p-1.5 border rounded flex items-center justify-center h-10 text-xs bg-gray-100 border-gray-200 text-gray-400 cursor-not-allowed">
         <Clock className="w-4 h-4 text-gray-400" />
       </div>
     );
+  }
   
-    if (viewMode === 'admin') {
+  if (viewMode === 'admin') {
+    return (
+      <button
+        onClick={() => {
+          if (slot.status === 'booked') {
+            viewStudentInfo(day, time);
+          } else {
+            toggleSlotAvailability(day, time);
+          }
+        }}
+        className={`w-full p-1.5 border rounded transition-all flex flex-col items-center justify-center h-10 text-xs ${getSlotColor(slot.status)}`}
+      >
+        {getSlotIcon(slot.status)}
+      </button>
+    );
+  } else {
+    const selected = isSlotSelected(day, time);
+    if (slot.status === 'available') {
       return (
         <button
-          onClick={() => {
-            if (slot.status === 'booked') {
-              viewStudentInfo(day, time);
-            } else {
-              toggleSlotAvailability(day, time);
-            }
-          }}
-          className={`w-full p-1.5 border rounded transition-all flex flex-col items-center justify-center h-10 text-xs ${getSlotColor(slot.status)}`}
+          onClick={() => handleBookSlot(day, time)}
+          className={`w-full p-1.5 border rounded transition-all flex items-center justify-center h-10 ${getSlotColor(slot.status, selected)} font-semibold text-xs`}
         >
-          {getSlotIcon(slot.status)}
+          {selected ? (
+            <Check className="w-4 h-4 text-indigo-700" />
+          ) : (
+            <Check className="w-4 h-4 text-green-600" />
+          )}
         </button>
       );
     } else {
-      const selected = isSlotSelected(day, time);
-      if (slot.status === 'available') {
-        return (
-          <button
-            onClick={() => handleBookSlot(day, time)}
-            className={`w-full p-1.5 border rounded transition-all flex items-center justify-center h-10 ${getSlotColor(slot.status, selected)} font-semibold text-xs`}
-          >
-            {selected ? (
-              <Check className="w-4 h-4 text-indigo-700" />
-            ) : (
-              <Check className="w-4 h-4 text-green-600" />
-            )}
-          </button>
-        );
-      } else {
-        // Öğrenciler için blocked ve booked farklı görünsün
-        return (
-          <div className={`w-full p-1.5 border rounded flex items-center justify-center h-10 text-xs ${getSlotColor(slot.status)}`}>
-            {slot.status === 'blocked' ? (
-              <X className="w-4 h-4 text-gray-600" />
-            ) : (
-              <Calendar className="w-4 h-4 text-blue-600" />
-            )}
-          </div>
-        );
-      }
+      return (
+        <div className={`w-full p-1.5 border rounded flex items-center justify-center h-10 text-xs ${getSlotColor(slot.status)}`}>
+          {slot.status === 'blocked' ? (
+            <X className="w-4 h-4 text-gray-600" />
+          ) : (
+            <Calendar className="w-4 h-4 text-blue-600" />
+          )}
+        </div>
+      );
     }
-  };
-
+  }
+};
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 p-4">
       <div className="max-w-7xl mx-auto">
