@@ -417,6 +417,23 @@ const toggleSlotAvailability = async (day, time) => {
   }
 };
 
+// Zoom için tarih/saat formatını oluştur
+const getZoomDateTime = (day, time) => {
+  const today = new Date();
+  const dayOfWeek = today.getDay();
+  const weekdays = ['Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi', 'Pazar'];
+  const targetDayIndex = weekdays.indexOf(day);
+  const daysUntilTarget = (targetDayIndex + 1 - dayOfWeek + 7) % 7 || 7;
+  
+  const targetDate = new Date(today);
+  targetDate.setDate(today.getDate() + daysUntilTarget);
+  
+  const [hours, minutes] = time.split(':');
+  targetDate.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+  
+  return targetDate.toISOString();
+};
+
 const generateZoomMeeting = async (day, time, studentName) => {
   try {
     const zoomResponse = await fetch('https://edxnltxzalqudizbxocf.supabase.co/functions/v1/create-zoom-meeting', {
