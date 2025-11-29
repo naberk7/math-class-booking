@@ -191,7 +191,7 @@ const loadScheduleFromDatabase = async () => {
     alert('Yanlış şifre! Lütfen tekrar deneyin.');
     setPasswordInput('');
   }
-  };
+};
 
 const toggleSlotAvailability = async (day, time) => {
   const currentStatus = schedule[day][time].status;
@@ -491,7 +491,7 @@ const generateZoomMeeting = async (day, time, studentName) => {
       body: JSON.stringify({
         topic: `Matematik Dersi - ${studentName}`,
         start_time: getZoomDateTime(day, time),
-        duration: 45,
+        duration: 50,
         timezone: 'Europe/Istanbul'
       })
     });
@@ -756,8 +756,8 @@ const generateZoomMeeting = async (day, time, studentName) => {
         <div className="mt-3 bg-gray-800 rounded-lg shadow-lg p-4 border border-gray-700">
           <h2 className="text-lg font-semibold text-white mb-2">Ders Detayları</h2>
           <div className="text-gray-300 space-y-1 text-sm">
-            <p>• Ders Süresi: <strong>45 dakika</strong></p>
-            <p>• Dersler Arası Mola: <strong>15 dakika</strong></p>
+            <p>• Ders Süresi: <strong>50 dakika</strong></p>
+            <p>• Dersler Arası Mola: <strong>10 dakika</strong></p>
             <p>• Toplam Slot Süresi: <strong>1 saat</strong></p>
             <p>• Çalışma Saatleri: <strong>08:00 - 22:00</strong></p>
           </div>
@@ -796,13 +796,13 @@ const generateZoomMeeting = async (day, time, studentName) => {
           Öğrencilere birebir online soru çözümü ve matematik desteği sağlıyorum.<br/>
 	  Bu site yardımı ile haftalık uygun slotlara randevu oluşturduğunuzda benim onayıma düşüyor, ben onaylayınca ise görüşme için Zoom linkleri otomatik olarak iki tarafla da paylaşılıyor. Gün ve saat geldiğinde ise Zoom'da buluşuyoruz. 
 	 Bu noktada öğrencinin soracağı soruları bir PDF dosyasında toplamış olması çok önemli.
-	 Çünkü bana ulaştırdığı PDF dosyası ile, hemen tabletten ekran paylaşarak soruları çözmeye başlıyorum. Bu sayede hiç zaman kaybetmeden soru çözmeye başlıyoruz, seansın başladığı ilk 10 dakikada öğrenci ücreti gönderiyor ve seans 45 dakika olacak şekilde sürüyor.	
+	 Çünkü bana ulaştırdığı PDF dosyası ile, hemen tabletten ekran paylaşarak soruları çözmeye başlıyorum. Bu sayede hiç zaman kaybetmeden soru çözmeye başlıyoruz, seansın başladığı ilk 10 dakikada öğrenci ücreti gönderiyor ve seans 50 dakika olacak şekilde sürüyor.	
         </p>
         <p className="text-gray-300 text-sm leading-relaxed">
           • CV'me sayfanın üstündeki linkten ulaşabilirsiniz.<br/>
           • Güven esastır, bu yüzden ödeme seans başladıktan bir süre sonra alınacaktır.<br/>
           • Seans başlamadan PDF'in hazırlanmış olması zorunludur.<br/>
-          • Her seans 45 dakikadır ve ücreti 500 TLdir.<br/>
+          • Her seans 50 dakikadır ve ücreti 500 TLdir.<br/>
           • Ödemeler banka havalesi veya EFT ile yapılabilir.<br/>
           • Ödeme seans başladıktan sonraki ilk 10 dakika içinde tahsil edilmezse, maalesef ki sonlandırılacaktır.
 
@@ -923,7 +923,7 @@ const generateZoomMeeting = async (day, time, studentName) => {
                   </div>
                 ))}
                 <div className="pt-2 border-t border-indigo-200 text-xs">
-                  <p><strong>Ders Süresi:</strong> 45 dakika</p>
+                  <p><strong>Ders Süresi:</strong> 50 dakika</p>
                   <p><strong>İsim:</strong> {lastBooking.studentName}</p>
                   <p><strong>E-posta:</strong> {lastBooking.studentEmail}</p>
                   {lastBooking.studentPhone && (
@@ -970,7 +970,7 @@ const generateZoomMeeting = async (day, time, studentName) => {
                 </div>
                 <div className="flex items-start">
                   <span className="font-semibold w-20 text-xs">Süre:</span>
-                  <span className="text-xs">45 dakika</span>
+                  <span className="text-xs">50 dakika</span>
                 </div>
               </div>
             </div>
