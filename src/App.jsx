@@ -309,12 +309,17 @@ const toggleSlotAvailability = async (day, time) => {
   }
 
   try {
+
+    console.log('Siliniyor:', { day, time });
+
     // Veritabanından sil
-    const { error } = await supabase
+    const { error, data } = await supabase
       .from('bookings')
       .delete()
       .eq('day', day)
       .eq('time', time);
+
+      console.log('Silme sonucu:', { error, data });
 
     if (error) throw error;
 
