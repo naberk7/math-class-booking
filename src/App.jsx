@@ -332,6 +332,24 @@ const toggleSlotAvailability = async (day, time) => {
       }
     }));
 
+    try {
+  await fetch('https://edxnltxzalqudizbxocf.supabase.co/functions/v1/send-cancellation-email', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      to: selectedStudentInfo.studentEmail,
+      studentName: selectedStudentInfo.studentName,
+      day: day,
+      time: time
+    })
+  });
+} catch (emailError) {
+  console.error('Mail gönderilemedi:', emailError);
+  // Mail hatası olsa bile iptal işlemi başarılı
+}
+
     setShowStudentInfo(false);
     alert('Rezervasyon başarıyla iptal edildi!');
   } catch (error) {
