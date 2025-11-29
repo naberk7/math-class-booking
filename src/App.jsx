@@ -303,6 +303,38 @@ const toggleSlotAvailability = async (day, time) => {
     }
   };
 
+  const handleCancelBooking = async (day, time) => {
+  if (!window.confirm('Bu rezervasyonu iptal etmek istediğinizden emin misiniz?')) {
+    return;
+  }
+
+  try {
+    // Veritabanından sil
+    const { error } = await supabase
+      .from('bookings')
+      .delete()
+      .eq('day', day)
+      .eq('time', time);
+
+    if (error) throw error;
+
+    // Yerel state'i güncelle
+    setSchedule(prev => ({
+      ...prev,
+      [day]: {
+        ...prev[day],
+        [time]: { status: 'available', studentName: '' }
+      }
+    }));
+
+    setShowStudentInfo(false);
+    alert('Rezervasyon başarıyla iptal edildi!');
+  } catch (error) {
+    console.error('İptal hatası:', error);
+    alert('Rezervasyon iptal edilirken bir hata oluştu.');
+  }
+};
+
   const proceedToBooking = () => {
     if (selectedSlots.length > 0) {
       setShowBookingForm(true);
@@ -1024,7 +1056,13 @@ const generateZoomMeeting = async (day, time, studentName) => {
                 </div>
               </div>
             )}
-            
+
+            <button
+              onClick={() => handleCancelBooking(selectedStudentInfo.day, selectedStudentInfo.time)}
+              className="w-full bg-red-600 text-white py-2 px-4 rounded-lg font-semibold hover:bg-red-700 transition-all text-sm mb-3"
+            >
+                🗑️ Rezervasyonu İptal Et
+            </button>
             <button
               onClick={() => setShowStudentInfo(false)}
               className="w-full bg-indigo-600 text-white py-2 px-4 rounded-lg font-semibold hover:bg-indigo-700 transition-all text-sm"
